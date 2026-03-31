@@ -1,0 +1,29 @@
+{
+  "name": "lag-behind",
+  "version": "0.0.1",
+  "author": {
+    "name": "Craig R Broughton",
+    "email": "CRBroughton@posteo.uk",
+    "url": "https://CRBroughton.me"
+  },
+  "description": "",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "lag-behind": "./dist/bin/lag-behind.js"
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/bin/lag-behind.js",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
