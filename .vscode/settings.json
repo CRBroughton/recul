@@ -1,6 +1,7 @@
 {
     "conventionalCommits.scopes": [
         "docs",
-        "configuration"
+        "configuration",
+        "adapters"
     ]
 }
