@@ -2,6 +2,8 @@
     "conventionalCommits.scopes": [
         "docs",
         "configuration",
-        "adapters"
+        "adapters",
+        "cli",
+        "playground"
     ]
 }

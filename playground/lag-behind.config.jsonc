@@ -1,0 +1,46 @@
+{
+  // How many versions to stay behind the latest published release.
+  // Counted in releases, not semver increments — a major bump counts as one.
+  //
+  //   1  →  days to weeks   (fast-moving projects, minimal buffer)
+  //   2  →  weeks           (balanced default, recommended)
+  //   3  →  weeks to months (cautious teams, slower release cadences)
+  //   5+ →  months          (regulated environments, high-security contexts)
+  "lag": 2,
+
+  // Package manager used in this project.
+  // Controls the phrasing of generated install commands and lockfile detection.
+  //   "npm" | "pnpm" | "bun" | "yarn"
+  "packageManager": "npm",
+
+  // Path to the package.json file to audit, relative to this config file.
+  "packageFile": "package.json",
+
+  // How to handle packages that are already older than the lag target
+  // (e.g. you pinned something much older than the window).
+  //
+  //   "ignore"  →  treat as ok, no output (default)
+  //   "report"  →  surface them with a safe upgrade-to-target command
+  "behindBehavior": "ignore",
+
+  // Version prefix used in generated install commands.
+  // Also used to detect mismatches between what is declared in package.json
+  // and what the tool expects — a mismatch means the audited version may
+  // differ from what is actually installed.
+  //
+  // Can be a single value applied to all packages:
+  //   "exact"  →  1.3.4    (recommended — audits are reliable)
+  //   "caret"  →  ^1.3.4   (allows minor/patch drift — audit may be imprecise)
+  //   "tilde"  →  ~1.3.4   (allows patch drift only — audit may be imprecise)
+  //
+  // Or a per-package map (use "default" as the fallback):
+  //   { "default": "exact", "react": "tilde", "some-pkg": "caret" }
+  "rangeSpecifier": {
+    "default": "exact"
+  },
+
+  // Packages to skip entirely during the audit.
+  // Useful for tools where you intentionally stay on an older version
+  // for reasons unrelated to the lag policy (e.g. peer dep constraints).
+  "ignore": []
+}
