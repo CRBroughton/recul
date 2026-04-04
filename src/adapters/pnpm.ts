@@ -5,7 +5,7 @@ import type { InstalledVersionMap } from '../types.js';
 import type { LockfileAdapter } from '../lockfile.js';
 
 
-interface PnpmLockEntry { version?: unknown }
+interface PnpmLockEntry { version?: string; }
 interface PnpmLock {
   importers?: Record<string, {
     dependencies?: Record<string, PnpmLockEntry>;
@@ -14,7 +14,7 @@ interface PnpmLock {
 }
 
 interface PnpmWorkspace {
-  catalogs?: Record<string, Record<string, unknown>>;
+  catalogs?: Record<string, Record<string, string>>;
 }
 
 /**
@@ -33,7 +33,7 @@ export function parsePnpmLock(content: string): InstalledVersionMap {
   for (const block of [root.dependencies, root.devDependencies]) {
     if (!block) continue;
     for (const [name, entry] of Object.entries(block)) {
-      if (typeof entry.version === 'string') {
+      if (entry.version !== undefined) {
         result[name] = entry.version.split('(')[0]!.trim();
       }
     }
@@ -66,11 +66,7 @@ export function loadPnpmCatalog(dir: string): Record<string, Record<string, stri
     if (!raw?.catalogs) return null;
     const result: Record<string, Record<string, string>> = {};
     for (const [catalogName, section] of Object.entries(raw.catalogs)) {
-      const map: Record<string, string> = {};
-      for (const [name, entry] of Object.entries(section)) {
-        if (typeof entry === 'string') map[name] = entry;
-      }
-      result[catalogName] = map;
+      result[catalogName] = { ...section };
     }
     return Object.keys(result).length > 0 ? result : null;
   } catch {
