@@ -18,7 +18,7 @@ async function auditOne({ name, rawVersion, lag, rangeSpecifier, installedVersio
 
   // catalog: entries have no usable version in package.json — the lockfile is required
   if (isCatalogRef && installedVersion === null) {
-    return { name, declared, current: '', installed: null, target: null, latest: null, status: 'unresolved', rangeSpecifier, declaredSpecifier: 'other', specifierMismatch: false, fromCatalog, error: 'catalog reference — pnpm lockfile required' };
+    return { name, declared, current: '', installed: null, target: null, latest: null, status: 'unresolved', rangeSpecifier, declaredSpecifier: 'other', specifierMismatch: false, fromCatalog, error: 'catalog reference; pnpm lockfile required' };
   }
 
   const current = isCatalogRef ? installedVersion! : bareVersion(rawVersion);
