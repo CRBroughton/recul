@@ -30,7 +30,7 @@ const main = defineCommand({
     const fileConfig = loadConfigFile(configDir);
 
     if (fileConfig === null) {
-      console.error('no config file found.\n');
+      console.error('no config file found or config could not be parsed.\n');
       console.error('run "lag-behind init" to create lag-behind.config.jsonc with recommended settings.');
       process.exit(1);
     }

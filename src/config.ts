@@ -25,10 +25,12 @@ export function loadConfigFile(dir: string): ConfigFile | null {
     try {
       const src = readFileSync(path, 'utf8');
       const raw = parseJSONC<ConfigFile | null>(src);
-      if (raw === null || typeof raw !== 'object') return {};
+      if (raw === null || typeof raw !== 'object') return null;
       return raw;
-    } catch {
-      return {};
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`error: could not parse ${path}: ${message}`);
+      return null;
     }
   }
   return null;
