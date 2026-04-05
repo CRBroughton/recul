@@ -7,12 +7,13 @@ interface AuditOneOptions {
   name: string;
   rawVersion: string;
   lag: number;
+  minimumReleaseAge?: number;
   rangeSpecifier: RangeSpecifier;
   installedVersion: string | null;
   fromCatalog: boolean;
 }
 
-async function auditOne({ name, rawVersion, lag, rangeSpecifier, installedVersion, fromCatalog }: AuditOneOptions): Promise<AuditResult> {
+async function auditOne({ name, rawVersion, lag, minimumReleaseAge, rangeSpecifier, installedVersion, fromCatalog }: AuditOneOptions): Promise<AuditResult> {
   const declared = rawVersion;
   const isCatalogRef = rawVersion.startsWith('catalog:');
 
@@ -28,7 +29,7 @@ async function auditOne({ name, rawVersion, lag, rangeSpecifier, installedVersio
 
   let resolved;
   try {
-    resolved = await resolvePackage({ name, lag });
+    resolved = await resolvePackage({ name, lag, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}) });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return { name, declared, current, installed, target: null, latest: null, status: 'unresolved', rangeSpecifier, declaredSpecifier, specifierMismatch, fromCatalog, error: message };
@@ -53,6 +54,7 @@ async function auditOne({ name, rawVersion, lag, rangeSpecifier, installedVersio
 export interface AuditDepsOptions {
   pkgJson: PackageJson;
   lag: number;
+  minimumReleaseAge?: number;
   rangeSpecifier: RangeSpecifierConfig;
   only?: string[];
   ignore?: string[];
@@ -67,7 +69,7 @@ export interface AuditDepsOptions {
  * - `installed`: lockfile-resolved version map; used for comparison when present.
  * - `rangeSpecifier`: global string or per-package record.
  */
-export async function auditDeps({ pkgJson, lag, rangeSpecifier, only = [], ignore = [], installed, catalogPackages }: AuditDepsOptions): Promise<AuditResult[]> {
+export async function auditDeps({ pkgJson, lag, minimumReleaseAge, rangeSpecifier, only = [], ignore = [], installed, catalogPackages }: AuditDepsOptions): Promise<AuditResult[]> {
   const deps: Record<string, string> = {
     ...(pkgJson.dependencies ?? {}),
     ...(pkgJson.devDependencies ?? {}),
@@ -85,6 +87,7 @@ export async function auditDeps({ pkgJson, lag, rangeSpecifier, only = [], ignor
         name: n,
         rawVersion: deps[n] ?? '',
         lag,
+        ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}),
         rangeSpecifier: resolveRangeSpecifier({ config: rangeSpecifier, name: n }),
         installedVersion: installed?.[n] ?? null,
         fromCatalog: catalogPackages?.has(n) ?? false,

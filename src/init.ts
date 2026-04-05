@@ -55,7 +55,17 @@ const TEMPLATE = `{
   // Packages to skip entirely during the audit.
   // Useful for tools where you intentionally stay on an older version
   // for reasons unrelated to the lag policy (e.g. peer dep constraints).
-  "ignore": []
+  "ignore": [],
+
+  // Minimum number of days a version must have been published before it
+  // is considered eligible as a lag target. Versions newer than this
+  // threshold are excluded from the candidate list entirely.
+  //
+  // Combine with "lag" for defence-in-depth:
+  //   lag: 2 + minimumReleaseAge: 3  →  at least 2 versions old AND published 3+ days ago
+  //
+  // Omit or set to 0 to disable (default).
+  // "minimumReleaseAge": 3
 }
 `;
 
@@ -94,6 +104,9 @@ export function runInit(cwd: string) {
   console.log(`                   Per-package map: { "default": "exact", "react": "tilde" }`);
   console.log(``);
   console.log(`  ignore           Array of package names to skip entirely.`);
+  console.log(``);
+  console.log(`  minimumReleaseAge  Minimum days a version must be published before it is eligible.`);
+  console.log(`                     Omit or set to 0 to disable.`);
   console.log(``);
   console.log(`CLI flags always override config file values.\n`);
 }

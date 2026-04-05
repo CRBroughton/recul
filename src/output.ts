@@ -70,11 +70,13 @@ function printSettings({
   pm,
   behindBehavior,
   rangeSpecifier,
+  minimumReleaseAge,
 }: {
   lag: number;
   pm: PackageManager;
   behindBehavior: BehindBehavior;
   rangeSpecifier: RangeSpecifierConfig;
+  minimumReleaseAge?: number;
 }): void {
   const behindDesc = behindBehavior === 'report'
     ? 'report packages behind target'
@@ -98,6 +100,9 @@ function printSettings({
   console.log(`  ${col('pm')}${col(pm)};  the chosen package manager`);
   console.log(`  ${col('behind')}${col(behindBehavior)};  ${behindDesc}`);
   console.log(`  ${col('range')}${rangeVal};  ${rangeNote}`);
+  if (minimumReleaseAge !== undefined) {
+    console.log(`  ${col('minAge')}${col(String(minimumReleaseAge))};  skip versions published within the last ${minimumReleaseAge} day${minimumReleaseAge === 1 ? '' : 's'}`);
+  }
 }
 
 function printCatalogEdits({
@@ -127,11 +132,12 @@ export interface PrintResultsOptions {
   pm: PackageManager;
   behindBehavior: BehindBehavior;
   rangeSpecifier: RangeSpecifierConfig;
+  minimumReleaseAge?: number;
   workspaceFile?: string;
   fixed?: string[];
 }
 
-export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier, workspaceFile, fixed }: PrintResultsOptions): void {
+export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier, minimumReleaseAge, workspaceFile, fixed }: PrintResultsOptions): void {
   const violations = results.filter((r) => r.status === 'pin');
   const behind     = results.filter((r) => r.status === 'behind');
   const unresolved = results.filter((r) => r.status === 'unresolved');
@@ -147,7 +153,7 @@ export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier,
   const hasInstalled = results.some((r) => r.installed !== null);
 
   console.log(`\nlag-behind  staying ${lag} version${lag === 1 ? '' : 's'} behind latest\n`);
-  printSettings({ lag, pm, behindBehavior, rangeSpecifier });
+  printSettings({ lag, pm, behindBehavior, rangeSpecifier, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}) });
   console.log();
 
   // Column order: package · declared · → target · installed · latest · status
