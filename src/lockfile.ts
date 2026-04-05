@@ -58,8 +58,8 @@ export function detectPackageManager(dir: string): PackageManager | null {
     if (typeof pkg === 'object' && pkg !== null && 'packageManager' in pkg) {
       const field = (pkg as Record<string, unknown>)['packageManager'];
       if (typeof field === 'string') {
-        const name = field.split('@')[0] as PackageManager;
-        if (['npm', 'pnpm'].includes(name)) return name;
+        const name = field.split('@')[0];
+        if (name === 'npm' || name === 'pnpm') return name;
       }
     }
   }
