@@ -29,7 +29,9 @@ export function loadLockfile({
     if (!existsSync(path)) continue;
     try {
       return adapter.parse(readFileSync(path, 'utf8'));
-    } catch {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`error: could not parse ${path}: ${message}`);
       return null;
     }
   }
@@ -52,16 +54,14 @@ export function detectPackageManager(dir: string): PackageManager | null {
   }
   const pkgPath = resolve(dir, 'package.json');
   if (existsSync(pkgPath)) {
-    try {
-      const pkg = destr(readFileSync(pkgPath, 'utf8'));
-      if (typeof pkg === 'object' && pkg !== null && 'packageManager' in pkg) {
-        const field = (pkg as Record<string, unknown>)['packageManager'];
-        if (typeof field === 'string') {
-          const name = field.split('@')[0] as PackageManager;
-          if (['npm', 'pnpm'].includes(name)) return name;
-        }
+    const pkg = destr(readFileSync(pkgPath, 'utf8'));
+    if (typeof pkg === 'object' && pkg !== null && 'packageManager' in pkg) {
+      const field = (pkg as Record<string, unknown>)['packageManager'];
+      if (typeof field === 'string') {
+        const name = field.split('@')[0] as PackageManager;
+        if (['npm', 'pnpm'].includes(name)) return name;
       }
-    } catch {}
+    }
   }
   return null;
 }
