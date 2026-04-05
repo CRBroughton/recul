@@ -6,7 +6,7 @@
     "email": "CRBroughton@posteo.uk",
     "url": "https://CRBroughton.me"
   },
-  "description": "",
+  "description": "Stay N versions behind the latest published release of your npm dependencies to avoid supply chain attacks.",
   "license": "MIT",
   "type": "module",
   "bin": {
