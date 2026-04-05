@@ -1,5 +1,11 @@
 # recul
 
+## 0.2.0
+
+### Minor Changes
+
+- 68389e0: Add -dev to the preReleaseFilter defaults
+
 ## 0.1.0
 
 ### Minor Changes
