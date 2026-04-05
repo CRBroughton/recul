@@ -12,12 +12,20 @@
     "node": ">=18"
   },
   "type": "module",
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
   "bin": {
     "lag-behind": "./dist/bin/lag-behind.js"
   },
   "files": [
-    "dist/"
+    "dist/bin/",
+    "dist/src/"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CRBroughton/lag-behind"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
