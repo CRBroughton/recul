@@ -6,7 +6,7 @@ recul is not a replacement for typical auditing via `npm audit` or third party s
 
 ## How it works
 
-Given a lag of `N`, the target version is `versions[latest_index - N]`. Only stable releases are counted; pre-release versions (configurable, defaults to `-alpha`, `-beta`, `-rc`, `-next`, `-canary`) are excluded. If a package has fewer releases than the lag value, recul pins to the oldest available stable version.
+Given a lag of `N`, the target version is `versions[latest_index - N]`. Only stable releases are counted; pre-release versions (configurable, defaults to `-alpha`, `-beta`, `-rc`, `-next`, `-canary`, `-dev`) are excluded. If a package has fewer releases than the lag value, recul pins to the oldest available stable version.
 
 Packages already older than the lag target are left alone by default. The invariant is "never be too new", not "be exactly N behind".
 
@@ -77,7 +77,7 @@ Commit a `recul.config.jsonc` to standardise settings across the team.
 
   // Version strings containing any of these substrings are treated as
   // pre-releases and excluded from the candidate list.
-  "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary"]
+  "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary", "-dev"]
 }
 ```
 
