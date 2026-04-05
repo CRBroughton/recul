@@ -29,14 +29,24 @@ const TEMPLATE = `{
   "behindBehavior": "ignore",
 
   // Version prefix used in generated install commands.
-  // Also used to detect mismatches between what is declared in package.json
-  // and what the tool expects — a mismatch means the audited version may
-  // differ from what is actually installed.
+  // Also controls two things simultaneously:
+  //
+  //   1. Mismatch detection — flags packages declared with a different prefix
+  //      than configured (e.g. "^1.2.3" declared but "exact" configured).
+  //
+  //   2. Lag comparison depth — how strictly the installed version must match
+  //      the lag target before a pin-back is triggered:
+  //        exact  →  all three parts compared  (1.2.3 must equal 1.2.3)
+  //        tilde  →  major + minor compared    (1.2.x is ok if target is 1.2.0)
+  //        caret  →  major only compared       (1.x.x is ok if target is 1.0.0)
+  //
+  //   Setting "react": "tilde" relaxes both checks for that package — patch
+  //   differences will not trigger a pin-back and will not be flagged as mismatches.
   //
   // Can be a single value applied to all packages:
-  //   "exact"  →  1.3.4    (recommended — audits are reliable)
-  //   "caret"  →  ^1.3.4   (allows minor/patch drift — audit may be imprecise)
-  //   "tilde"  →  ~1.3.4   (allows patch drift only — audit may be imprecise)
+  //   "exact"  →  1.3.4    (recommended; audits are reliable)
+  //   "caret"  →  ^1.3.4   (allows minor/patch drift; audit may be imprecise)
+  //   "tilde"  →  ~1.3.4   (allows patch drift only; audit may be imprecise)
   //
   // Or a per-package map (use "default" as the fallback):
   //   { "default": "exact", "react": "tilde", "some-pkg": "caret" }
@@ -77,11 +87,11 @@ export function runInit(cwd: string) {
   console.log(`  behindBehavior   What to do with packages older than the lag target.`);
   console.log(`                   ignore (default) — silent. report — show upgrade command.`);
   console.log(``);
-  console.log(`  rangeSpecifier   Version prefix in generated commands and mismatch detection.`);
-  console.log(`                   exact (recommended) — 1.3.4`);
-  console.log(`                   caret               — ^1.3.4  (audit may be imprecise)`);
-  console.log(`                   tilde               — ~1.3.4  (audit may be imprecise)`);
-  console.log(`                   Or a per-package map: { "default": "exact", "react": "tilde" }`);
+  console.log(`  rangeSpecifier   Controls mismatch detection and lag comparison depth.`);
+  console.log(`                   exact (recommended) — pin-back if any part differs`);
+  console.log(`                   tilde               — pin-back only if major or minor differs`);
+  console.log(`                   caret               — pin-back only if major differs`);
+  console.log(`                   Per-package map: { "default": "exact", "react": "tilde" }`);
   console.log(``);
   console.log(`  ignore           Array of package names to skip entirely.`);
   console.log(``);
