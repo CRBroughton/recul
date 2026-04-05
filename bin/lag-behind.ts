@@ -39,12 +39,12 @@ const main = defineCommand({
 
     const config = defu(
       { file: args.file as string | undefined },
-      { lag: fileConfig.lag, file: fileConfig.packageFile, pm: fileConfig.packageManager as PackageManager | undefined, behindBehavior: fileConfig.behindBehavior, rangeSpecifier: fileConfig.rangeSpecifier, ignore: fileConfig.ignore, minimumReleaseAge: fileConfig.minimumReleaseAge },
+      { lag: fileConfig.lag, file: fileConfig.packageFile, pm: fileConfig.packageManager as PackageManager | undefined, behindBehavior: fileConfig.behindBehavior, rangeSpecifier: fileConfig.rangeSpecifier, ignore: fileConfig.ignore, minimumReleaseAge: fileConfig.minimumReleaseAge, preReleaseFilter: fileConfig.preReleaseFilter },
       { pm: detectedPm ?? undefined },
       DEFAULTS,
     );
 
-    const { lag, file, pm, behindBehavior, rangeSpecifier, ignore } = config;
+    const { lag, file, pm, behindBehavior, rangeSpecifier, ignore, preReleaseFilter } = config;
     const minimumReleaseAge = config.minimumReleaseAge !== null ? config.minimumReleaseAge : undefined;
 
     const pkgPath = resolve(process.cwd(), file);
@@ -77,6 +77,7 @@ const main = defineCommand({
       pkgJson,
       lag,
       ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}),
+      preReleaseFilter,
       rangeSpecifier,
       ignore,
       ...(installedMap !== null ? { installed: installedMap } : {}),

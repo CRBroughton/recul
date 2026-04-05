@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { computeTarget, fetchStableVersions, resolvePackage } from '../src/resolve.js';
+import { DEFAULTS } from '../src/config.js';
 
 const DAY_MS = 86_400_000;
+const PRE_RELEASE_FILTER = DEFAULTS.preReleaseFilter;
 
 describe('computeTarget', () => {
   it('returns version at index (length - 1 - lag)', () => {
@@ -34,7 +36,7 @@ describe('fetchStableVersions', () => {
     vi.stubGlobal('fetch', vi.fn(async () =>
       new Response(JSON.stringify({ versions: { '1.0.0': {}, '1.1.0': {}, '2.0.0-beta.1': {} } }), { status: 200 }),
     ));
-    const versions = await fetchStableVersions('some-pkg');
+    const versions = await fetchStableVersions('some-pkg', undefined, PRE_RELEASE_FILTER);
     expect(versions).toEqual(['1.0.0', '1.1.0']);
   });
 
@@ -42,7 +44,7 @@ describe('fetchStableVersions', () => {
     vi.stubGlobal('fetch', vi.fn(async () =>
       new Response(JSON.stringify({ versions: { '1.0.0-alpha': {}, '1.0.0': {}, '1.1.0-rc.1': {}, '1.1.0': {} } }), { status: 200 }),
     ));
-    const versions = await fetchStableVersions('some-pkg');
+    const versions = await fetchStableVersions('some-pkg', undefined, PRE_RELEASE_FILTER);
     expect(versions).toEqual(['1.0.0', '1.1.0']);
   });
 

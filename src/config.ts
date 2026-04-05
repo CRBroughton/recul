@@ -45,6 +45,7 @@ export const DEFAULTS: Config = {
   ignore: [],
   behindBehavior: 'ignore',
   rangeSpecifier: 'exact',
+  preReleaseFilter: ['-alpha', '-beta', '-rc', '-next', '-canary'],
 };
 
 /**
