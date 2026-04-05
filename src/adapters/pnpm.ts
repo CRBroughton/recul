@@ -47,8 +47,6 @@ export const pnpmAdapter: LockfileAdapter = {
   parse: parsePnpmLock,
 };
 
-// ─── Workspace catalog support ────────────────────────────────────────────────────────
-
 /**
  * Read all catalogs from pnpm-workspace.yaml and return a
  * catalogName → (packageName → specifier) map.

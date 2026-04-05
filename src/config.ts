@@ -3,15 +3,11 @@ import { resolve, dirname } from 'node:path';
 import { parseJSONC } from 'confbox';
 import type { Config, ConfigFile, RangeSpecifier, RangeSpecifierConfig } from './types.js';
 
-// ─── Validators ──────────────────────────────────────────────────────────────
-
 const VALID_RANGE: ReadonlySet<string> = new Set(['exact', 'caret', 'tilde']);
 
 function isRangeSpecifier(value: string): value is RangeSpecifier {
   return VALID_RANGE.has(value);
 }
-
-// ─── Config file ─────────────────────────────────────────────────────────────
 
 const CONFIG_FILE = 'lag-behind.config.jsonc';
 
@@ -41,8 +37,6 @@ export function resolveConfigDir({ file, cwd }: { file?: string; cwd: string }):
   return file !== undefined ? resolve(cwd, dirname(file)) : cwd;
 }
 
-// ─── Defaults ─────────────────────────────────────────────────────────────────
-
 export const DEFAULTS: Config = {
   lag: 2,
   file: 'package.json',
@@ -52,8 +46,6 @@ export const DEFAULTS: Config = {
   behindBehavior: 'ignore',
   rangeSpecifier: 'exact',
 };
-
-// ─── Utilities ───────────────────────────────────────────────────────────────
 
 /**
  * Resolve the effective RangeSpecifier for a specific package.

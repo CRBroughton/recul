@@ -1,8 +1,4 @@
-// ─── Package manager ────────────────────────────────────────────────────────
-
 export type PackageManager = 'npm' | 'pnpm';
-
-// ─── Config ─────────────────────────────────────────────────────────────────
 
 export type BehindBehavior = 'ignore' | 'report';
 export type RangeSpecifier = 'exact' | 'caret' | 'tilde';
@@ -37,8 +33,6 @@ export interface ConfigFile {
   ignore?: string[];
 }
 
-// ─── Registry / resolution ───────────────────────────────────────────────────
-
 export interface ResolvedPackage {
   name: string;
   stableVersions: string[];
@@ -46,12 +40,8 @@ export interface ResolvedPackage {
   target: string | null;
 }
 
-// ─── Lockfile ────────────────────────────────────────────────────────────────
-
 /** name → installed version, resolved from a lockfile. */
 export type InstalledVersionMap = Record<string, string>;
-
-// ─── Audit ───────────────────────────────────────────────────────────────────
 
 export type AuditStatus = 'ok' | 'pin' | 'behind' | 'unresolved';
 

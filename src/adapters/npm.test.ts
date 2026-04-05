@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parsePackagesBlock, parseNpmLock } from './npm.js';
 
-// ─── parsePackagesBlock ───────────────────────────────────────────────────��───
-
 describe('parsePackagesBlock', () => {
   it('extracts top-level package names and versions', () => {
     const result = parsePackagesBlock({
@@ -41,8 +39,6 @@ describe('parsePackagesBlock', () => {
     expect(parsePackagesBlock({})).toEqual({});
   });
 });
-
-// ─── parseNpmLock ─────────────────────────────────────────────────────────────
 
 describe('parseNpmLock', () => {
   const fixture = JSON.stringify({
