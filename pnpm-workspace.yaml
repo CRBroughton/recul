@@ -8,6 +8,7 @@ packages:
 catalogs:
   default:
     '@antfu/eslint-config': 8.0.0
+    '@changesets/cli': 2.30.0
     '@types/node': 25.3.5
     citty: 0.2.0
     confbox: 0.2.2

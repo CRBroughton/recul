@@ -36,9 +36,9 @@
     "prepublishOnly": "pnpm test && pnpm build",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "changeset": "npx changeset",
-    "changeset:status": "npx changeset status --verbose",
-    "changeset:version": "npx changeset version"
+    "changeset": "changeset",
+    "changeset:status": "changeset status --verbose",
+    "changeset:version": "changeset version"
   },
   "dependencies": {
     "citty": "catalog:",
@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:",
+    "@changesets/cli": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:testing",
     "eslint": "catalog:",
