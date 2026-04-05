@@ -3,13 +3,12 @@
   "version": "1.0.0",
   "description": "Sample project for manual lag-behind testing",
   "dependencies": {
-    "chalk": "5.5.0",
-    "express": "5.1.0",
-    "lodash": "4.17.21"
+    "express": "catalog:",
+    "lodash": "catalog:"
   },
   "devDependencies": {
-    "eslint": "10.0.2",
-    "typescript": "5.9.2",
-    "vitest": "4.1.0"
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:testing"
   }
 }
