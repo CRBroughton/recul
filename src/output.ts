@@ -154,7 +154,7 @@ export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier,
   const hasActions = violations.length > 0 || (behindBehavior === 'report' && behind.length > 0)
   const hasInstalled = results.some(r => r.installed !== null)
 
-  console.log(`\nlag-behind  staying ${lag} version${lag === 1 ? '' : 's'} behind latest\n`)
+  console.log(`\nrecul  staying ${lag} version${lag === 1 ? '' : 's'} behind latest\n`)
   printSettings({ lag, pm, behindBehavior, rangeSpecifier, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}) })
   console.log()
 

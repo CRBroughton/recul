@@ -60,5 +60,9 @@
   //   lag: 2 + minimumReleaseAge: 3  →  at least 2 versions old AND published 3+ days ago
   //
   // Omit or set to 0 to disable (default).
-  "minimumReleaseAge": 3
+  "minimumReleaseAge": 3,
+
+  // Version strings containing any of these substrings are excluded from
+  // the candidate list and treated as pre-releases.
+  "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary"]
 }

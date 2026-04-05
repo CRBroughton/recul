@@ -1,15 +1,14 @@
-# lag-behind
+# recul
 
 Stay N versions behind the latest published release of your npm dependencies to avoid supply chain attacks.
 
-lag-behind is not a replacement for typical auditing via `npm audit` or third party auditing and security tools; lag-behind is a complementary layer that reduces the attack surface without requiring active effort on every release cycle.
+recul is not a replacement for typical auditing via `npm audit` or third party security tools; it is a complementary layer that reduces the attack surface without requiring active effort on every release cycle.
 
 ## How it works
 
-Given a lag of `N`, the target version is `versions[latest_index - N]`. Only stable releases are counted; pre-release versions (configurable, defaults to `-alpha`, `-beta`, `-rc`, `-next`, `-canary`) are excluded. If a package has fewer releases than the lag value, lag-behind pins to the oldest available stable version.
+Given a lag of `N`, the target version is `versions[latest_index - N]`. Only stable releases are counted; pre-release versions (configurable, defaults to `-alpha`, `-beta`, `-rc`, `-next`, `-canary`) are excluded. If a package has fewer releases than the lag value, recul pins to the oldest available stable version.
 
 Packages already older than the lag target are left alone by default. The invariant is "never be too new", not "be exactly N behind".
-
 
 ## Requirements
 
@@ -18,24 +17,24 @@ Packages already older than the lag target are left alone by default. The invari
 ## Installation
 
 ```sh
-npm i -D lag-behind
+npm i -D recul
 # or
-pnpm add -D lag-behind
+pnpm add -D recul
 ```
-
 
 ## Quick start
 
 ```sh
 # Create a config file in the current directory
-lag-behind init
+recul init
 
 # Audit your dependencies
-lag-behind
+recul
 ```
+
 ## Configuration
 
-Commit a `lag-behind.config.jsonc` to standardise settings across the team.
+Commit a `recul.config.jsonc` to standardise settings across the team.
 
 ```jsonc
 {
@@ -81,12 +80,13 @@ Commit a `lag-behind.config.jsonc` to standardise settings across the team.
   "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary"]
 }
 ```
-A config file is required; run `lag-behind init` if you do not have one.
+
+A config file is required; run `recul init` if you do not have one.
 
 ## Output
 
 ```
-lag-behind  staying 2 versions behind latest
+recul  staying 2 versions behind latest
 
 settings
   lag       2           ;  stay 2 versions behind latest
@@ -118,16 +118,15 @@ A `⚠ declared <specifier>` warning is appended when a package is declared with
 
 ## pnpm catalog support
 
-When using pnpm workspaces with a `catalogs` block in `pnpm-workspace.yaml`, lag-behind reads catalog entries to resolve `catalog:` and `catalog:<name>` references in `package.json`.
+When using pnpm workspaces with a `catalogs` block in `pnpm-workspace.yaml`, recul reads catalog entries to resolve `catalog:` and `catalog:<name>` references in `package.json`.
 
 Violations in catalog-managed packages are reported with the catalog entry to update rather than an install command. Pass `--fix` to apply the updates directly to `pnpm-workspace.yaml`.
 
 ## Lockfile support
 
-When a lockfile is present, lag-behind reads the installed version from it and uses that for comparison rather than the declared range. This gives accurate results for packages declared with `^` or `~`.
+When a lockfile is present, recul reads the installed version from it and uses that for comparison rather than the declared range. This gives accurate results for packages declared with `^` or `~`.
 
 | Package manager | Lockfile |
 |----------------|----------|
 | npm | `package-lock.json` (v3) |
 | pnpm | `pnpm-lock.yaml` (v6+) |
-

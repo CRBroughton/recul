@@ -1,7 +1,7 @@
 import { existsSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-const CONFIG_FILENAME = 'lag-behind.config.jsonc'
+const CONFIG_FILENAME = 'recul.config.jsonc'
 
 const TEMPLATE = `{
   // How many versions to stay behind the latest published release.
@@ -77,7 +77,7 @@ export function runInit(cwd: string) {
   const dest = resolve(cwd, CONFIG_FILENAME)
 
   if (existsSync(dest)) {
-    console.log(`\nlag-behind init\n`)
+    console.log(`\nrecul init\n`)
     console.log(`config file already exists: ${dest}`)
     console.log(`delete it first if you want to regenerate.\n`)
     process.exit(1)
@@ -85,7 +85,7 @@ export function runInit(cwd: string) {
 
   writeFileSync(dest, TEMPLATE, 'utf8')
 
-  console.log(`\nlag-behind init\n`)
+  console.log(`\nrecul init\n`)
   console.log(`created: ${dest}\n`)
   console.log(`configuration options:\n`)
   console.log(`  lag              How many versions behind latest to stay.`)

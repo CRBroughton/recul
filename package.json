@@ -1,7 +1,7 @@
 {
-  "name": "lag-behind",
+  "name": "@crbroughton/recul",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Stay N versions behind the latest published release of your npm dependencies to avoid supply chain attacks.",
   "author": {
     "name": "Craig R Broughton",
@@ -11,14 +11,21 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CRBroughton/lag-behind"
+    "url": "https://github.com/CRBroughton/recul"
   },
-  "keywords": ["npm", "security", "dependencies", "supply-chain", "audit", "version-pinning"],
+  "keywords": [
+    "npm",
+    "security",
+    "dependencies",
+    "supply-chain",
+    "audit",
+    "version-pinning"
+  ],
   "exports": {
     ".": "./dist/src/index.js"
   },
   "bin": {
-    "lag-behind": "./dist/bin/lag-behind.js"
+    "recul": "./dist/bin/recul.js"
   },
   "files": [
     "dist/bin/",
@@ -30,7 +37,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "start": "node dist/bin/lag-behind.js",
+    "start": "node dist/bin/recul.js",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "prepublishOnly": "pnpm test && pnpm build",

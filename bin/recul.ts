@@ -12,14 +12,14 @@ import { detectPackageManager, loadLockfile, loadPnpmCatalog, npmAdapter, pnpmAd
 import { printResults } from '../src/output.js'
 
 const initCommand = defineCommand({
-  meta: { name: 'init', description: 'Create lag-behind.config.jsonc with recommended settings' },
+  meta: { name: 'init', description: 'Create recul.config.jsonc with recommended settings' },
   run() {
     runInit(process.cwd())
   },
 })
 
 const main = defineCommand({
-  meta: { name: 'lag-behind', description: 'Stay N versions behind latest' },
+  meta: { name: 'recul', description: 'Stay N versions behind latest' },
   args: {
     file: { type: 'string', alias: 'f', description: 'Path to package.json (default: package.json)' },
     fix: { type: 'boolean', description: 'Apply catalog fixes directly to pnpm-workspace.yaml' },
@@ -31,7 +31,7 @@ const main = defineCommand({
 
     if (fileConfig === null) {
       console.error('no config file found or config could not be parsed.\n')
-      console.error('run "lag-behind init" to create lag-behind.config.jsonc with recommended settings.')
+      console.error('run "recul init" to create recul.config.jsonc with recommended settings.')
       process.exit(1)
     }
 

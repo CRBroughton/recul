@@ -98,7 +98,7 @@ catalogs:
 describe('loadPnpmCatalog', () => {
   let dir: string
 
-  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'lag-behind-test-')) })
+  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'recul-test-')) })
   afterEach(() => { rmSync(dir, { recursive: true }) })
 
   it('returns a catalogName → (name → specifier) map', () => {
@@ -163,7 +163,7 @@ describe('resolveCatalogRefs', () => {
 describe('updatePnpmCatalog', () => {
   let dir: string
 
-  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'lag-behind-test-')) })
+  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'recul-test-')) })
   afterEach(() => { rmSync(dir, { recursive: true }) })
 
   it('rewrites matching catalog entries in place', () => {

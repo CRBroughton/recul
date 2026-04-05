@@ -9,7 +9,7 @@ function isRangeSpecifier(value: string): value is RangeSpecifier {
   return VALID_RANGE.has(value)
 }
 
-const CONFIG_FILE = 'lag-behind.config.jsonc'
+const CONFIG_FILE = 'recul.config.jsonc'
 
 /**
  * Load the config file from `dir`.

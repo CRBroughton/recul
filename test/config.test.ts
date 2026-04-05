@@ -39,7 +39,7 @@ describe('resolveRangeSpecifier', () => {
 describe('loadConfigFile', () => {
   let dir: string
 
-  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'lag-behind-test-')) })
+  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'recul-test-')) })
   afterEach(() => { rmSync(dir, { recursive: true }) })
 
   it('returns null when no config file exists', () => {
@@ -47,25 +47,25 @@ describe('loadConfigFile', () => {
   })
 
   it('reads a .jsonc file and returns parsed fields', () => {
-    writeFileSync(join(dir, 'lag-behind.config.jsonc'), JSON.stringify({ lag: 5, packageManager: 'pnpm' }))
+    writeFileSync(join(dir, 'recul.config.jsonc'), JSON.stringify({ lag: 5, packageManager: 'pnpm' }))
     const cfg = loadConfigFile(dir)
     expect(cfg).not.toBeNull()
     expect((cfg as Record<string, unknown>).lag).toBe(5)
   })
 
   it('strips JSONC comments', () => {
-    writeFileSync(join(dir, 'lag-behind.config.jsonc'), '{ // comment\n"lag": 4 }')
+    writeFileSync(join(dir, 'recul.config.jsonc'), '{ // comment\n"lag": 4 }')
     const cfg = loadConfigFile(dir)
     expect((cfg as Record<string, unknown>).lag).toBe(4)
   })
 
   it('returns null for invalid JSON', () => {
-    writeFileSync(join(dir, 'lag-behind.config.jsonc'), 'not json!!!')
+    writeFileSync(join(dir, 'recul.config.jsonc'), 'not json!!!')
     expect(loadConfigFile(dir)).toBeNull()
   })
 
   it('returns null when root is not an object', () => {
-    writeFileSync(join(dir, 'lag-behind.config.jsonc'), '"just a string"')
+    writeFileSync(join(dir, 'recul.config.jsonc'), '"just a string"')
     expect(loadConfigFile(dir)).toBeNull()
   })
 })

@@ -7,7 +7,7 @@ import { detectPackageManager, loadLockfile, npmAdapter, pnpmAdapter } from './l
 describe('loadLockfile', () => {
   let dir: string
 
-  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'lag-behind-test-')) })
+  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'recul-test-')) })
   afterEach(() => { rmSync(dir, { recursive: true }) })
 
   it('returns null when no lockfile is found', () => {
@@ -66,7 +66,7 @@ importers:
 describe('detectPackageManager', () => {
   let dir: string
 
-  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'lag-behind-test-')) })
+  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'recul-test-')) })
   afterEach(() => { rmSync(dir, { recursive: true }) })
 
   it('returns null when no lockfile or packageManager field exists', () => {

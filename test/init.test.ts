@@ -9,7 +9,7 @@ describe('runInit', () => {
   let exitSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'lag-behind-init-test-'))
+    dir = mkdtempSync(join(tmpdir(), 'recul-init-test-'))
     exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {}) as never)
     vi.spyOn(console, 'log').mockImplementation(() => {})
   })
@@ -19,19 +19,19 @@ describe('runInit', () => {
     vi.restoreAllMocks()
   })
 
-  it('creates lag-behind.config.jsonc when it does not exist', () => {
+  it('creates recul.config.jsonc when it does not exist', () => {
     runInit(dir)
-    expect(existsSync(join(dir, 'lag-behind.config.jsonc'))).toBe(true)
+    expect(existsSync(join(dir, 'recul.config.jsonc'))).toBe(true)
   })
 
   it('written file contains valid JSONC with default lag value', () => {
     runInit(dir)
-    const content = readFileSync(join(dir, 'lag-behind.config.jsonc'), 'utf8')
+    const content = readFileSync(join(dir, 'recul.config.jsonc'), 'utf8')
     expect(content).toContain('"lag": 2')
   })
 
   it('exits with code 1 when config file already exists', () => {
-    writeFileSync(join(dir, 'lag-behind.config.jsonc'), '{}')
+    writeFileSync(join(dir, 'recul.config.jsonc'), '{}')
     runInit(dir)
     expect(exitSpy).toHaveBeenCalledWith(1)
   })

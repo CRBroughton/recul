@@ -1,7 +1,7 @@
 {
   "name": "playground",
   "version": "1.0.0",
-  "description": "Sample project for manual lag-behind testing",
+  "description": "Sample project for manual recul testing",
   "dependencies": {
     "express": "catalog:",
     "lodash": "catalog:"

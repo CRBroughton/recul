@@ -24,7 +24,7 @@ export interface Config {
   preReleaseFilter: string[]
 }
 
-/** Shape of lag-behind.config.json(c) */
+/** Shape of recul.config.json(c) */
 export interface ConfigFile {
   lag?: number
   packageManager?: PackageManager
