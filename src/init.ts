@@ -69,7 +69,7 @@ const TEMPLATE = `{
 
   // Version strings containing any of these substrings are excluded from
   // the candidate list and treated as pre-releases.
-  "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary"]
+  "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary", "-dev"]
 }
 `
 
