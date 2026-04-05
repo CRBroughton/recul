@@ -1,17 +1,18 @@
 {
   "name": "lag-behind",
+  "type": "module",
   "version": "0.1.0",
+  "description": "Stay N versions behind the latest published release of your npm dependencies to avoid supply chain attacks.",
   "author": {
     "name": "Craig R Broughton",
     "email": "CRBroughton@posteo.uk",
     "url": "https://CRBroughton.me"
   },
-  "description": "Stay N versions behind the latest published release of your npm dependencies to avoid supply chain attacks.",
   "license": "MIT",
-  "engines": {
-    "node": ">=18"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CRBroughton/lag-behind"
   },
-  "type": "module",
   "exports": {
     ".": "./dist/src/index.js"
   },
@@ -22,9 +23,8 @@
     "dist/bin/",
     "dist/src/"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/CRBroughton/lag-behind"
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
     "build": "tsc",
@@ -32,19 +32,24 @@
     "start": "node dist/bin/lag-behind.js",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "pnpm test && pnpm build"
-  },
-  "devDependencies": {
-    "@types/node":"catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:testing",
-    "@vitest/coverage-v8": "catalog:testing"
+    "prepublishOnly": "pnpm test && pnpm build",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
   },
   "dependencies": {
     "citty": "catalog:",
     "confbox": "catalog:",
-    "destr": "catalog:",
-    "defu": "catalog:"
+    "defu": "catalog:",
+    "destr": "catalog:"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:testing",
+    "eslint": "catalog:",
+    "jiti": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:testing"
   }
 }

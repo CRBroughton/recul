@@ -1,15 +1,24 @@
+shellEmulator: true
+
+trustPolicy: no-downgrade
+
 packages:
   - playground
 
 catalogs:
   default:
-    typescript: 5.9.2
-    "@types/node": 25.3.5
-    vite: 8.0.1
+    '@antfu/eslint-config': 8.0.0
+    '@types/node': 25.3.5
     citty: 0.2.0
     confbox: 0.2.2
-    destr: 2.0.3
     defu: 6.1.4
+    destr: 2.0.3
+    eslint: 10.2.0
+    express: 5.2.1
+    jiti: 2.6.1
+    lodash: 4.18.1
+    typescript: 5.9.2
+    vite: 8.0.1
   testing:
+    '@vitest/coverage-v8': 4.1.0
     vitest: 4.1.0
-    "@vitest/coverage-v8": 4.1.0
