@@ -3,6 +3,7 @@ import { semverCompare } from './semver.js';
 
 const REGISTRY = 'https://registry.npmjs.org';
 const PRE_RELEASE = /[-+]/; // catches -alpha, -beta, -rc and build metadata
+const DAY_MS = 86_400_000;
 
 /** Shape of the subset of the npm registry packument we care about. */
 interface Packument {
@@ -35,7 +36,7 @@ export async function fetchStableVersions(name: string, minimumReleaseAge?: numb
   }
   const stable = Object.keys(data.versions).filter((v) => !PRE_RELEASE.test(v));
   if (minimumReleaseAge === undefined || minimumReleaseAge <= 0) return stable;
-  const cutoff = Date.now() - minimumReleaseAge * 86_400_000;
+  const cutoff = Date.now() - minimumReleaseAge * DAY_MS;
   return stable.filter((v) => {
     const published = data.time?.[v];
     if (published === undefined) return true;

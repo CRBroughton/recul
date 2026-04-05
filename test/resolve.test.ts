@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { computeTarget, fetchStableVersions, resolvePackage } from '../src/resolve.js';
 
+const DAY_MS = 86_400_000;
+
 describe('computeTarget', () => {
   it('returns version at index (length - 1 - lag)', () => {
     expect(computeTarget({ versions: ['1.0.0', '1.1.0', '1.2.0', '1.3.0', '1.4.0'], lag: 2 })).toBe('1.2.0');
@@ -59,8 +61,8 @@ describe('fetchStableVersions', () => {
   });
 
   it('excludes versions published within minimumReleaseAge days', async () => {
-    const old = new Date(Date.now() - 10 * 86_400_000).toISOString();
-    const recent = new Date(Date.now() - 1 * 86_400_000).toISOString();
+    const old = new Date(Date.now() - 10 * DAY_MS).toISOString();
+    const recent = new Date(Date.now() - 1 * DAY_MS).toISOString();
     vi.stubGlobal('fetch', vi.fn(async () =>
       new Response(JSON.stringify({
         versions: { '1.0.0': {}, '1.1.0': {}, '1.2.0': {} },
@@ -72,7 +74,7 @@ describe('fetchStableVersions', () => {
   });
 
   it('keeps a version published exactly at the cutoff boundary', async () => {
-    const atCutoff = new Date(Date.now() - 3 * 86_400_000).toISOString();
+    const atCutoff = new Date(Date.now() - 3 * DAY_MS).toISOString();
     vi.stubGlobal('fetch', vi.fn(async () =>
       new Response(JSON.stringify({
         versions: { '1.0.0': {} },
@@ -84,7 +86,7 @@ describe('fetchStableVersions', () => {
   });
 
   it('keeps all versions when minimumReleaseAge is 0', async () => {
-    const recent = new Date(Date.now() - 1 * 86_400_000).toISOString();
+    const recent = new Date(Date.now() - 1 * DAY_MS).toISOString();
     vi.stubGlobal('fetch', vi.fn(async () =>
       new Response(JSON.stringify({
         versions: { '1.0.0': {}, '1.1.0': {} },
