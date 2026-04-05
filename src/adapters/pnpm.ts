@@ -69,7 +69,9 @@ export function loadPnpmCatalog(dir: string): Record<string, Record<string, stri
       result[catalogName] = { ...section };
     }
     return Object.keys(result).length > 0 ? result : null;
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`error: could not parse ${path}: ${message}`);
     return null;
   }
 }
