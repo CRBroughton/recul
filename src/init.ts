@@ -5,7 +5,7 @@ const CONFIG_FILENAME = 'lag-behind.config.jsonc';
 
 const TEMPLATE = `{
   // How many versions to stay behind the latest published release.
-  // Counted in releases, not semver increments — a major bump counts as one.
+  // Counted in releases, not semver increments; a major bump counts as one.
   //
   //   1  →  days to weeks   (fast-moving projects, minimal buffer)
   //   2  →  weeks           (balanced default, recommended)
@@ -31,16 +31,16 @@ const TEMPLATE = `{
   // Version prefix used in generated install commands.
   // Also controls two things simultaneously:
   //
-  //   1. Mismatch detection — flags packages declared with a different prefix
+  //   1. Mismatch detection; flags packages declared with a different prefix
   //      than configured (e.g. "^1.2.3" declared but "exact" configured).
   //
-  //   2. Lag comparison depth — how strictly the installed version must match
+  //   2. Lag comparison depth; how strictly the installed version must match
   //      the lag target before a pin-back is triggered:
   //        exact  →  all three parts compared  (1.2.3 must equal 1.2.3)
   //        tilde  →  major + minor compared    (1.2.x is ok if target is 1.2.0)
   //        caret  →  major only compared       (1.x.x is ok if target is 1.0.0)
   //
-  //   Setting "react": "tilde" relaxes both checks for that package — patch
+  //   Setting "react": "tilde" relaxes both checks for that package; patch
   //   differences will not trigger a pin-back and will not be flagged as mismatches.
   //
   // Can be a single value applied to all packages:
@@ -85,12 +85,12 @@ export function runInit(cwd: string) {
   console.log(`                   Relative to this config file.`);
   console.log(``);
   console.log(`  behindBehavior   What to do with packages older than the lag target.`);
-  console.log(`                   ignore (default) — silent. report — show upgrade command.`);
+  console.log(`                   ignore (default); silent. report; show upgrade command.`);
   console.log(``);
   console.log(`  rangeSpecifier   Controls mismatch detection and lag comparison depth.`);
-  console.log(`                   exact (recommended) — pin-back if any part differs`);
-  console.log(`                   tilde               — pin-back only if major or minor differs`);
-  console.log(`                   caret               — pin-back only if major differs`);
+  console.log(`                   exact (recommended); pin-back if any part differs`);
+  console.log(`                   tilde              ; pin-back only if major or minor differs`);
+  console.log(`                   caret              ; pin-back only if major differs`);
   console.log(`                   Per-package map: { "default": "exact", "react": "tilde" }`);
   console.log(``);
   console.log(`  ignore           Array of package names to skip entirely.`);
