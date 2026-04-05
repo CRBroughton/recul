@@ -17,9 +17,9 @@ Packages already older than the lag target are left alone by default. The invari
 ## Installation
 
 ```sh
-npm i -D recul
+npm i -D @crbroughton/recul
 # or
-pnpm add -D recul
+pnpm add -D @crbroughton/recul
 ```
 
 ## Quick start
