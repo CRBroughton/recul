@@ -57,6 +57,54 @@ describe('fetchStableVersions', () => {
     ));
     await expect(fetchStableVersions('bad-pkg')).rejects.toThrow('unexpected registry response shape');
   });
+
+  it('excludes versions published within minimumReleaseAge days', async () => {
+    const old = new Date(Date.now() - 10 * 86_400_000).toISOString();
+    const recent = new Date(Date.now() - 1 * 86_400_000).toISOString();
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '1.0.0': {}, '1.1.0': {}, '1.2.0': {} },
+        time: { '1.0.0': old, '1.1.0': old, '1.2.0': recent },
+      }), { status: 200 }),
+    ));
+    const versions = await fetchStableVersions('some-pkg', 3);
+    expect(versions).toEqual(['1.0.0', '1.1.0']);
+  });
+
+  it('keeps a version published exactly at the cutoff boundary', async () => {
+    const atCutoff = new Date(Date.now() - 3 * 86_400_000).toISOString();
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '1.0.0': {} },
+        time: { '1.0.0': atCutoff },
+      }), { status: 200 }),
+    ));
+    const versions = await fetchStableVersions('some-pkg', 3);
+    expect(versions).toEqual(['1.0.0']);
+  });
+
+  it('keeps all versions when minimumReleaseAge is 0', async () => {
+    const recent = new Date(Date.now() - 1 * 86_400_000).toISOString();
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '1.0.0': {}, '1.1.0': {} },
+        time: { '1.0.0': recent, '1.1.0': recent },
+      }), { status: 200 }),
+    ));
+    const versions = await fetchStableVersions('some-pkg', 0);
+    expect(versions).toEqual(['1.0.0', '1.1.0']);
+  });
+
+  it('keeps a version when time entry is missing from the time map', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '1.0.0': {} },
+        time: {},
+      }), { status: 200 }),
+    ));
+    const versions = await fetchStableVersions('some-pkg', 7);
+    expect(versions).toEqual(['1.0.0']);
+  });
 });
 
 // ─── resolvePackage ───────────────────────────────────────────────────────────

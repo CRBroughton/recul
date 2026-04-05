@@ -7,6 +7,7 @@ const PRE_RELEASE = /[-+]/; // catches -alpha, -beta, -rc and build metadata
 /** Shape of the subset of the npm registry packument we care about. */
 interface Packument {
   versions: Record<string, unknown>;
+  time: Record<string, string>;
 }
 
 function isPackument(value: unknown): value is Packument {
@@ -21,8 +22,9 @@ function isPackument(value: unknown): value is Packument {
 /**
  * Fetch all published versions for a package from the npm registry.
  * Returns them in publish order (oldest → newest), stable only.
+ * When minimumReleaseAge is set (days), versions published more recently are excluded.
  */
-export async function fetchStableVersions(name: string): Promise<string[]> {
+export async function fetchStableVersions(name: string, minimumReleaseAge?: number): Promise<string[]> {
   const res = await fetch(`${REGISTRY}/${encodeURIComponent(name)}`);
   if (!res.ok) {
     throw new Error(`registry fetch failed for "${name}": ${res.status} ${res.statusText}`);
@@ -31,7 +33,14 @@ export async function fetchStableVersions(name: string): Promise<string[]> {
   if (!isPackument(data)) {
     throw new Error(`unexpected registry response shape for "${name}"`);
   }
-  return Object.keys(data.versions).filter((v) => !PRE_RELEASE.test(v));
+  const stable = Object.keys(data.versions).filter((v) => !PRE_RELEASE.test(v));
+  if (minimumReleaseAge === undefined || minimumReleaseAge <= 0) return stable;
+  const cutoff = Date.now() - minimumReleaseAge * 86_400_000;
+  return stable.filter((v) => {
+    const published = data.time?.[v];
+    if (published === undefined) return true;
+    return new Date(published).getTime() <= cutoff;
+  });
 }
 
 /**
@@ -48,8 +57,8 @@ export function computeTarget({ versions, lag }: { versions: string[]; lag: numb
 }
 
 /** Resolve lag target for a single package. */
-export async function resolvePackage({ name, lag }: { name: string; lag: number }): Promise<ResolvedPackage> {
-  const stableVersions = (await fetchStableVersions(name)).sort((versionA, versionB) => semverCompare({ versionA, versionB }));
+export async function resolvePackage({ name, lag, minimumReleaseAge }: { name: string; lag: number; minimumReleaseAge?: number }): Promise<ResolvedPackage> {
+  const stableVersions = (await fetchStableVersions(name, minimumReleaseAge)).sort((versionA, versionB) => semverCompare({ versionA, versionB }));
   const latest = stableVersions.at(-1) ?? null;
   const target = computeTarget({ versions: stableVersions, lag });
   return { name, stableVersions, latest, target };

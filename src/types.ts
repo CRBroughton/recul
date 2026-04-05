@@ -21,6 +21,7 @@ export interface Config {
   ignore: string[];
   behindBehavior: BehindBehavior;
   rangeSpecifier: RangeSpecifierConfig;
+  minimumReleaseAge?: number;
 }
 
 /** Shape of lag-behind.config.json(c) */
@@ -31,6 +32,7 @@ export interface ConfigFile {
   behindBehavior?: BehindBehavior;
   rangeSpecifier?: RangeSpecifierConfig;
   ignore?: string[];
+  minimumReleaseAge?: number;
 }
 
 export interface ResolvedPackage {
