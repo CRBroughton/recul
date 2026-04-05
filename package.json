@@ -19,11 +19,20 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/bin/lag-behind.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
-    "@types/node": "catalog:",
+    "@types/node":"catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vite": "catalog:",
+    "vitest": "catalog:testing",
+    "@vitest/coverage-v8": "catalog:testing"
+  },
+  "dependencies": {
+    "citty": "catalog:",
+    "confbox": "catalog:",
+    "destr": "catalog:",
+    "defu": "catalog:"
   }
 }
