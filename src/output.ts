@@ -94,10 +94,10 @@ function printSettings({
 
   const col = (s: string) => s.padEnd(10);
   console.log('settings');
-  console.log(`  ${col('lag')}${col(String(lag))}  —  stay ${lag} version${lag === 1 ? '' : 's'} behind latest`);
-  console.log(`  ${col('pm')}${col(pm)}  —  the chosen package manager`);
-  console.log(`  ${col('behind')}${col(behindBehavior)}  —  ${behindDesc}`);
-  console.log(`  ${col('range')}${rangeVal}  —  ${rangeNote}`);
+  console.log(`  ${col('lag')}${col(String(lag))};  stay ${lag} version${lag === 1 ? '' : 's'} behind latest`);
+  console.log(`  ${col('pm')}${col(pm)};  the chosen package manager`);
+  console.log(`  ${col('behind')}${col(behindBehavior)};  ${behindDesc}`);
+  console.log(`  ${col('range')}${rangeVal};  ${rangeNote}`);
 }
 
 function printCatalogEdits({
