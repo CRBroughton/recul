@@ -17,7 +17,6 @@ export interface Config {
   lag: number
   file: string
   pm: PackageManager
-  packages: string[]
   ignore: string[]
   behindBehavior: BehindBehavior
   rangeSpecifier: RangeSpecifierConfig

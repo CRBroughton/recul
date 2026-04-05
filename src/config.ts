@@ -43,7 +43,6 @@ export const DEFAULTS: Config = {
   lag: 2,
   file: 'package.json',
   pm: 'npm',
-  packages: [],
   ignore: [],
   behindBehavior: 'ignore',
   rangeSpecifier: 'exact',

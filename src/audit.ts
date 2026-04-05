@@ -61,7 +61,6 @@ export interface AuditDepsOptions {
   minimumReleaseAge?: number
   preReleaseFilter?: string[]
   rangeSpecifier: RangeSpecifierConfig
-  only?: string[]
   ignore?: string[]
   installed?: InstalledVersionMap
   catalogPackages?: ReadonlySet<string>
@@ -69,18 +68,17 @@ export interface AuditDepsOptions {
 
 /**
  * Audit all dependencies in a package.json object.
- * - `only`: when non-empty, audit only these package names.
  * - `ignore`: skip these package names entirely.
  * - `installed`: lockfile-resolved version map; used for comparison when present.
  * - `rangeSpecifier`: global string or per-package record.
  */
-export async function auditDeps({ pkgJson, lag, minimumReleaseAge, preReleaseFilter = [], rangeSpecifier, only = [], ignore = [], installed, catalogPackages }: AuditDepsOptions): Promise<AuditResult[]> {
+export async function auditDeps({ pkgJson, lag, minimumReleaseAge, preReleaseFilter = [], rangeSpecifier, ignore = [], installed, catalogPackages }: AuditDepsOptions): Promise<AuditResult[]> {
   const deps: Record<string, string> = {
     ...(pkgJson.dependencies ?? {}),
     ...(pkgJson.devDependencies ?? {}),
   }
 
-  let names = only.length > 0 ? only.filter(n => n in deps) : Object.keys(deps)
+  let names = Object.keys(deps)
   if (ignore.length > 0) {
     const ignoreSet = new Set(ignore)
     names = names.filter(n => !ignoreSet.has(n))

@@ -99,20 +99,6 @@ describe('auditDeps', () => {
     expect(results.every(r => r.status === 'pin')).toBe(true)
   })
 
-  it('filters to only requested packages when specified', async () => {
-    vi.stubGlobal('fetch', makeRegistry({
-      react: { '18.0.0': {}, '18.1.0': {}, '18.2.0': {} },
-    }))
-
-    const pkgJson: PackageJson = {
-      dependencies: { react: '18.2.0', lodash: '4.0.0' },
-    }
-    const results = await auditDeps({ pkgJson, lag: 2, rangeSpecifier: 'exact', only: ['react'] })
-
-    expect(results).toHaveLength(1)
-    expect(results[0]!.name).toBe('react')
-  })
-
   it('skips packages in the ignore list', async () => {
     vi.stubGlobal('fetch', makeRegistry({
       react: { '18.0.0': {}, '18.1.0': {}, '18.2.0': {} },
