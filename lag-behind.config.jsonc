@@ -1,6 +1,6 @@
 {
   // How many versions to stay behind the latest published release.
-  // Counted in releases, not semver increments — a major bump counts as one.
+  // Counted in releases, not semver increments; a major bump counts as one.
   //
   //   1  →  days to weeks   (fast-moving projects, minimal buffer)
   //   2  →  weeks           (balanced default, recommended)
@@ -24,14 +24,24 @@
   "behindBehavior": "report",
 
   // Version prefix used in generated install commands.
-  // Also used to detect mismatches between what is declared in package.json
-  // and what the tool expects — a mismatch means the audited version may
-  // differ from what is actually installed.
+  // Also controls two things simultaneously:
+  //
+  //   1. Mismatch detection; flags packages declared with a different prefix
+  //      than configured (e.g. "^1.2.3" declared but "exact" configured).
+  //
+  //   2. Lag comparison depth; how strictly the installed version must match
+  //      the lag target before a pin-back is triggered:
+  //        exact  →  all three parts compared  (1.2.3 must equal 1.2.3)
+  //        tilde  →  major + minor compared    (1.2.x is ok if target is 1.2.0)
+  //        caret  →  major only compared       (1.x.x is ok if target is 1.0.0)
+  //
+  //   Setting "react": "tilde" relaxes both checks for that package; patch
+  //   differences will not trigger a pin-back and will not be flagged as mismatches.
   //
   // Can be a single value applied to all packages:
-  //   "exact"  →  1.3.4    (recommended — audits are reliable)
-  //   "caret"  →  ^1.3.4   (allows minor/patch drift — audit may be imprecise)
-  //   "tilde"  →  ~1.3.4   (allows patch drift only — audit may be imprecise)
+  //   "exact"  →  1.3.4    (recommended; audits are reliable)
+  //   "caret"  →  ^1.3.4   (allows minor/patch drift; audit may be imprecise)
+  //   "tilde"  →  ~1.3.4   (allows patch drift only; audit may be imprecise)
   //
   // Or a per-package map (use "default" as the fallback):
   //   { "default": "exact", "react": "tilde", "some-pkg": "caret" }
@@ -40,5 +50,15 @@
   // Packages to skip entirely during the audit.
   // Useful for tools where you intentionally stay on an older version
   // for reasons unrelated to the lag policy (e.g. peer dep constraints).
-  "ignore": []
+  "ignore": [],
+
+  // Minimum number of days a version must have been published before it
+  // is considered eligible as a lag target. Versions newer than this
+  // threshold are excluded from the candidate list entirely.
+  //
+  // Combine with "lag" for defence-in-depth:
+  //   lag: 2 + minimumReleaseAge: 3  →  at least 2 versions old AND published 3+ days ago
+  //
+  // Omit or set to 0 to disable (default).
+  "minimumReleaseAge": 3
 }
