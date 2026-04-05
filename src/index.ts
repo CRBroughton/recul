@@ -1,17 +1,17 @@
-export { auditDeps } from './audit.js';
-export { computeTarget, fetchStableVersions, resolvePackage } from './resolve.js';
-export { loadConfigFile, resolveConfigDir, resolveRangeSpecifier, rangePrefix, DEFAULTS } from './config.js';
-export { printResults } from './output.js';
+export { auditDeps } from './audit.js'
+export { DEFAULTS, loadConfigFile, rangePrefix, resolveConfigDir, resolveRangeSpecifier } from './config.js'
+export { printResults } from './output.js'
+export { computeTarget, fetchStableVersions, resolvePackage } from './resolve.js'
 export type {
+  AuditResult,
+  AuditStatus,
+  BehindBehavior,
   Config,
   ConfigFile,
+  InstalledVersionMap,
+  PackageJson,
   PackageManager,
-  BehindBehavior,
   RangeSpecifier,
   RangeSpecifierConfig,
   ResolvedPackage,
-  InstalledVersionMap,
-  AuditStatus,
-  AuditResult,
-  PackageJson,
-} from './types.js';
+} from './types.js'

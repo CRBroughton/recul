@@ -1,7 +1,7 @@
-import { writeFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
-const CONFIG_FILENAME = 'lag-behind.config.jsonc';
+const CONFIG_FILENAME = 'lag-behind.config.jsonc'
 
 const TEMPLATE = `{
   // How many versions to stay behind the latest published release.
@@ -71,49 +71,49 @@ const TEMPLATE = `{
   // the candidate list and treated as pre-releases.
   "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary"]
 }
-`;
+`
 
 export function runInit(cwd: string) {
-  const dest = resolve(cwd, CONFIG_FILENAME);
+  const dest = resolve(cwd, CONFIG_FILENAME)
 
   if (existsSync(dest)) {
-    console.log(`\nlag-behind init\n`);
-    console.log(`config file already exists: ${dest}`);
-    console.log(`delete it first if you want to regenerate.\n`);
-    process.exit(1);
+    console.log(`\nlag-behind init\n`)
+    console.log(`config file already exists: ${dest}`)
+    console.log(`delete it first if you want to regenerate.\n`)
+    process.exit(1)
   }
 
-  writeFileSync(dest, TEMPLATE, 'utf8');
+  writeFileSync(dest, TEMPLATE, 'utf8')
 
-  console.log(`\nlag-behind init\n`);
-  console.log(`created: ${dest}\n`);
-  console.log(`configuration options:\n`);
-  console.log(`  lag              How many versions behind latest to stay.`);
-  console.log(`                   Default 2 (weeks of vetting window).`);
-  console.log(``);
-  console.log(`  packageManager   Controls generated install command phrasing.`);
-  console.log(`                   npm | pnpm`);
+  console.log(`\nlag-behind init\n`)
+  console.log(`created: ${dest}\n`)
+  console.log(`configuration options:\n`)
+  console.log(`  lag              How many versions behind latest to stay.`)
+  console.log(`                   Default 2 (weeks of vetting window).`)
+  console.log(``)
+  console.log(`  packageManager   Controls generated install command phrasing.`)
+  console.log(`                   npm | pnpm`)
 
-  console.log(``);
-  console.log(`  packageFile      Path to the package.json to audit.`);
-  console.log(`                   Relative to this config file.`);
-  console.log(``);
-  console.log(`  behindBehavior   What to do with packages older than the lag target.`);
-  console.log(`                   ignore (default); silent. report; show upgrade command.`);
-  console.log(``);
-  console.log(`  rangeSpecifier   Controls mismatch detection and lag comparison depth.`);
-  console.log(`                   exact (recommended); pin-back if any part differs`);
-  console.log(`                   tilde              ; pin-back only if major or minor differs`);
-  console.log(`                   caret              ; pin-back only if major differs`);
-  console.log(`                   Per-package map: { "default": "exact", "react": "tilde" }`);
-  console.log(``);
-  console.log(`  ignore           Array of package names to skip entirely.`);
-  console.log(``);
-  console.log(`  minimumReleaseAge  Minimum days a version must be published before it is eligible.`);
-  console.log(`                     Omit or set to 0 to disable.`);
-  console.log(``);
-  console.log(`  preReleaseFilter   Substrings that mark a version as a pre-release.`);
-  console.log(`                     Any version containing one of these strings is excluded.`);
-  console.log(``);
-  console.log(`CLI flags always override config file values.\n`);
+  console.log(``)
+  console.log(`  packageFile      Path to the package.json to audit.`)
+  console.log(`                   Relative to this config file.`)
+  console.log(``)
+  console.log(`  behindBehavior   What to do with packages older than the lag target.`)
+  console.log(`                   ignore (default); silent. report; show upgrade command.`)
+  console.log(``)
+  console.log(`  rangeSpecifier   Controls mismatch detection and lag comparison depth.`)
+  console.log(`                   exact (recommended); pin-back if any part differs`)
+  console.log(`                   tilde              ; pin-back only if major or minor differs`)
+  console.log(`                   caret              ; pin-back only if major differs`)
+  console.log(`                   Per-package map: { "default": "exact", "react": "tilde" }`)
+  console.log(``)
+  console.log(`  ignore           Array of package names to skip entirely.`)
+  console.log(``)
+  console.log(`  minimumReleaseAge  Minimum days a version must be published before it is eligible.`)
+  console.log(`                     Omit or set to 0 to disable.`)
+  console.log(``)
+  console.log(`  preReleaseFilter   Substrings that mark a version as a pre-release.`)
+  console.log(`                     Any version containing one of these strings is excluded.`)
+  console.log(``)
+  console.log(`CLI flags always override config file values.\n`)
 }

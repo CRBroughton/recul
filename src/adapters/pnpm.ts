@@ -1,20 +1,19 @@
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { parseYAML } from 'confbox';
-import type { InstalledVersionMap } from '../types.js';
-import type { LockfileAdapter } from '../lockfile.js';
+import type { LockfileAdapter } from '../lockfile.js'
+import type { InstalledVersionMap } from '../types.js'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { parseYAML } from 'confbox'
 
-
-interface PnpmLockEntry { version?: string; }
+interface PnpmLockEntry { version?: string }
 interface PnpmLock {
   importers?: Record<string, {
-    dependencies?: Record<string, PnpmLockEntry>;
-    devDependencies?: Record<string, PnpmLockEntry>;
-  }>;
+    dependencies?: Record<string, PnpmLockEntry>
+    devDependencies?: Record<string, PnpmLockEntry>
+  }>
 }
 
 interface PnpmWorkspace {
-  catalogs?: Record<string, Record<string, string>>;
+  catalogs?: Record<string, Record<string, string>>
 }
 
 /**
@@ -25,27 +24,29 @@ interface PnpmWorkspace {
  * to leave only the bare version number.
  */
 export function parsePnpmLock(content: string): InstalledVersionMap {
-  const raw = parseYAML<PnpmLock>(content);
-  const result: InstalledVersionMap = {};
-  const root = raw?.importers?.['.'];
-  if (!root) return result;
+  const raw = parseYAML<PnpmLock>(content)
+  const result: InstalledVersionMap = {}
+  const root = raw?.importers?.['.']
+  if (!root)
+    return result
 
   for (const block of [root.dependencies, root.devDependencies]) {
-    if (!block) continue;
+    if (!block)
+      continue
     for (const [name, entry] of Object.entries(block)) {
       if (entry.version !== undefined) {
-        result[name] = entry.version.split('(')[0]!.trim();
+        result[name] = entry.version.split('(')[0]!.trim()
       }
     }
   }
 
-  return result;
+  return result
 }
 
 export const pnpmAdapter: LockfileAdapter = {
   filename: 'pnpm-lock.yaml',
   parse: parsePnpmLock,
-};
+}
 
 /**
  * Read all catalogs from pnpm-workspace.yaml and return a
@@ -57,20 +58,23 @@ export const pnpmAdapter: LockfileAdapter = {
  * Returns null if the file is absent or has no catalogs section.
  */
 export function loadPnpmCatalog(dir: string): Record<string, Record<string, string>> | null {
-  const path = resolve(dir, 'pnpm-workspace.yaml');
-  if (!existsSync(path)) return null;
+  const path = resolve(dir, 'pnpm-workspace.yaml')
+  if (!existsSync(path))
+    return null
   try {
-    const raw = parseYAML<PnpmWorkspace>(readFileSync(path, 'utf8'));
-    if (!raw?.catalogs) return null;
-    const result: Record<string, Record<string, string>> = {};
+    const raw = parseYAML<PnpmWorkspace>(readFileSync(path, 'utf8'))
+    if (!raw?.catalogs)
+      return null
+    const result: Record<string, Record<string, string>> = {}
     for (const [catalogName, section] of Object.entries(raw.catalogs)) {
-      result[catalogName] = { ...section };
+      result[catalogName] = { ...section }
     }
-    return Object.keys(result).length > 0 ? result : null;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error(`error: could not parse ${path}: ${message}`);
-    return null;
+    return Object.keys(result).length > 0 ? result : null
+  }
+  catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(`error: could not parse ${path}: ${message}`)
+    return null
   }
 }
 
@@ -83,18 +87,20 @@ export function resolveCatalogRefs(
   deps: Record<string, string>,
   catalogs: Record<string, Record<string, string>>,
 ): Record<string, string> {
-  const result: Record<string, string> = {};
+  const result: Record<string, string> = {}
   for (const [name, ver] of Object.entries(deps)) {
     if (ver === 'catalog:') {
-      result[name] = catalogs['default']?.[name] ?? ver;
-    } else if (ver.startsWith('catalog:')) {
-      const catalogName = ver.slice('catalog:'.length);
-      result[name] = catalogs[catalogName]?.[name] ?? ver;
-    } else {
-      result[name] = ver;
+      result[name] = catalogs.default?.[name] ?? ver
+    }
+    else if (ver.startsWith('catalog:')) {
+      const catalogName = ver.slice('catalog:'.length)
+      result[name] = catalogs[catalogName]?.[name] ?? ver
+    }
+    else {
+      result[name] = ver
     }
   }
-  return result;
+  return result
 }
 
 /**
@@ -103,12 +109,12 @@ export function resolveCatalogRefs(
  * Only lines within the file that match a catalog entry for the given name are rewritten.
  */
 export function updatePnpmCatalog(dir: string, updates: Record<string, string>): void {
-  const path = resolve(dir, 'pnpm-workspace.yaml');
-  let content = readFileSync(path, 'utf8');
+  const path = resolve(dir, 'pnpm-workspace.yaml')
+  let content = readFileSync(path, 'utf8')
   for (const [name, version] of Object.entries(updates)) {
-    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const pattern = new RegExp(`^(\\s+(?:'${escaped}'|"${escaped}"|${escaped}):\\s*)(.+)$`, 'gm');
-    content = content.replace(pattern, `$1${version}`);
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const pattern = new RegExp(`^(\\s+(?:'${escaped}'|"${escaped}"|${escaped}):\\s*)(.+)$`, 'gm')
+    content = content.replace(pattern, `$1${version}`)
   }
-  writeFileSync(path, content, 'utf8');
+  writeFileSync(path, content, 'utf8')
 }
