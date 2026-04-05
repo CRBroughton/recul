@@ -18,6 +18,6 @@
     "esModuleInterop": false,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "bin/**/*", "test/**/*"],
-  "exclude": ["dist", "playground"]
+  "include": ["src/**/*", "bin/**/*"],
+  "exclude": ["dist", "playground", "**/*.test.ts"]
 }
