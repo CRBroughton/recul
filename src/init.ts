@@ -65,7 +65,7 @@ const TEMPLATE = `{
   //   lag: 2 + minimumReleaseAge: 3  →  at least 2 versions old AND published 3+ days ago
   //
   // Omit or set to 0 to disable (default).
-  // "minimumReleaseAge": 3
+  "minimumReleaseAge": 3
 }
 `;
 
