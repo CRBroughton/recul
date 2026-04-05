@@ -8,6 +8,9 @@
   },
   "description": "Stay N versions behind the latest published release of your npm dependencies to avoid supply chain attacks.",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "type": "module",
   "bin": {
     "lag-behind": "./dist/bin/lag-behind.js"
