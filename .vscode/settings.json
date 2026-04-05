@@ -4,7 +4,8 @@
     "configuration",
     "adapters",
     "cli",
-    "playground"
+    "playground",
+    "dependencies"
   ],
   // Disable the default formatter, use eslint instead
   "prettier.enable": false,
