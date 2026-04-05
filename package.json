@@ -1,7 +1,7 @@
 {
   "name": "lag-behind",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Stay N versions behind the latest published release of your npm dependencies to avoid supply chain attacks.",
   "author": {
     "name": "Craig R Broughton",
@@ -13,6 +13,7 @@
     "type": "git",
     "url": "https://github.com/CRBroughton/lag-behind"
   },
+  "keywords": ["npm", "security", "dependencies", "supply-chain", "audit", "version-pinning"],
   "exports": {
     ".": "./dist/src/index.js"
   },
@@ -34,7 +35,10 @@
     "test:coverage": "vitest run --coverage",
     "prepublishOnly": "pnpm test && pnpm build",
     "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "changeset": "npx changeset",
+    "changeset:status": "npx changeset status --verbose",
+    "changeset:version": "npx changeset version"
   },
   "dependencies": {
     "citty": "catalog:",
