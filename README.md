@@ -6,7 +6,7 @@ lag-behind is not a replacement for typical auditing via `npm audit` or third pa
 
 ## How it works
 
-Given a lag of `N`, the target version is `versions[latest_index - N]`. Only stable releases are counted; no `-alpha`, `-beta`, `-rc` pre-releases. If a package has fewer releases than the lag value, lag-behind pins to the oldest available stable version.
+Given a lag of `N`, the target version is `versions[latest_index - N]`. Only stable releases are counted; pre-release versions (configurable, defaults to `-alpha`, `-beta`, `-rc`, `-next`, `-canary`) are excluded. If a package has fewer releases than the lag value, lag-behind pins to the oldest available stable version.
 
 Packages already older than the lag target are left alone by default. The invariant is "never be too new", not "be exactly N behind".
 
@@ -69,7 +69,16 @@ Commit a `lag-behind.config.jsonc` to standardise settings across the team.
   "rangeSpecifier": "exact",
 
   // Packages to skip entirely.
-  "ignore": []
+  "ignore": [],
+
+  // Minimum days a version must have been published before it is eligible
+  // as a lag target. Combines with "lag" for defence-in-depth.
+  // Omit or set to 0 to disable.
+  "minimumReleaseAge": 3,
+
+  // Version strings containing any of these substrings are treated as
+  // pre-releases and excluded from the candidate list.
+  "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary"]
 }
 ```
 A config file is required; run `lag-behind init` if you do not have one.
@@ -84,6 +93,7 @@ settings
   pm        pnpm        ;  the chosen package manager
   behind    ignore      ;  ignore packages behind target
   range     exact       ;  pin exact versions
+  minAge    3           ;  skip versions published within the last 3 days
 
 package              declared          → target          latest            status
 ────────────────────────────────────────────────────────────────────────────────
