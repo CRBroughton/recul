@@ -59,14 +59,14 @@ describe('loadConfigFile', () => {
     expect((cfg as Record<string, unknown>)['lag']).toBe(4);
   });
 
-  it('returns {} for invalid JSON', () => {
+  it('returns null for invalid JSON', () => {
     writeFileSync(join(dir, 'lag-behind.config.jsonc'), 'not json!!!');
-    expect(loadConfigFile(dir)).toEqual({});
+    expect(loadConfigFile(dir)).toBeNull();
   });
 
-  it('returns {} when root is not an object', () => {
+  it('returns null when root is not an object', () => {
     writeFileSync(join(dir, 'lag-behind.config.jsonc'), '"just a string"');
-    expect(loadConfigFile(dir)).toEqual({});
+    expect(loadConfigFile(dir)).toBeNull();
   });
 });
 
