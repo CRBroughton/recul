@@ -65,7 +65,11 @@ const TEMPLATE = `{
   //   lag: 2 + minimumReleaseAge: 3  →  at least 2 versions old AND published 3+ days ago
   //
   // Omit or set to 0 to disable (default).
-  "minimumReleaseAge": 3
+  "minimumReleaseAge": 3,
+
+  // Version strings containing any of these substrings are excluded from
+  // the candidate list and treated as pre-releases.
+  "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary"]
 }
 `;
 
@@ -107,6 +111,9 @@ export function runInit(cwd: string) {
   console.log(``);
   console.log(`  minimumReleaseAge  Minimum days a version must be published before it is eligible.`);
   console.log(`                     Omit or set to 0 to disable.`);
+  console.log(``);
+  console.log(`  preReleaseFilter   Substrings that mark a version as a pre-release.`);
+  console.log(`                     Any version containing one of these strings is excluded.`);
   console.log(``);
   console.log(`CLI flags always override config file values.\n`);
 }
