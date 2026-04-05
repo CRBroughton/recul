@@ -62,7 +62,7 @@ function formatRangeConfig(config: RangeSpecifierConfig): string {
     .filter(([k]) => k !== 'default')
     .map(([k, v]) => `${k} → ${v}`)
     .join(', ');
-  return overrides ? `${def} (default), ${overrides}` : `${def} (default)`;
+  return overrides ? `${def} (default), ${overrides}` : def;
 }
 
 function printSettings({
