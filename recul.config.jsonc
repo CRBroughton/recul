@@ -21,7 +21,7 @@
   //
   //   "ignore"  →  treat as ok, no output (default)
   //   "report"  →  surface them with a safe upgrade-to-target command
-  "behindBehavior": "report",
+  "behindBehavior": "ignore",
 
   // Version prefix used in generated install commands.
   // Also controls two things simultaneously:
