@@ -23,7 +23,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        if npx --yes @crbroughton/recul; then
+        if npx --yes --package @crbroughton/recul recul; then
           exit 0
         else
           if [ "${{ inputs.fail-on-violations }}" = "true" ]; then
