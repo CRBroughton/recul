@@ -1,7 +1,7 @@
 {
   "name": "@crbroughton/recul",
   "type": "module",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Stay N versions behind the latest published release of your npm dependencies to avoid supply chain attacks.",
   "author": {
     "name": "Craig R Broughton",
