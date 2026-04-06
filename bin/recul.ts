@@ -9,7 +9,7 @@ import { auditDeps, buildCatalogUpdates } from '../src/audit.js'
 import { DEFAULTS, loadConfigFile, resolveConfigDir } from '../src/config.js'
 import { runInit } from '../src/init.js'
 import { detectPackageManager, loadLockfile, loadPnpmCatalog, npmAdapter, pnpmAdapter, resolveCatalogRefs, updatePnpmCatalog } from '../src/lockfile.js'
-import { printResults } from '../src/output.js'
+import { printResults, writeSummary } from '../src/output.js'
 
 const initCommand = defineCommand({
   meta: { name: 'init', description: 'Create recul.config.jsonc with recommended settings' },
@@ -98,6 +98,10 @@ const main = defineCommand({
     }
 
     printResults({ results, lag, pm, behindBehavior, rangeSpecifier, sameMajor, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}), ...(catalogPackages !== undefined ? { workspaceFile: 'pnpm-workspace.yaml' } : {}), ...(fixed !== undefined ? { fixed } : {}) })
+
+    const summaryPath = process.env.GITHUB_STEP_SUMMARY
+    if (summaryPath !== undefined)
+      writeSummary({ results, lag, behindBehavior, summaryPath })
 
     const hasViolations = results.some(r =>
       r.status === 'pin'

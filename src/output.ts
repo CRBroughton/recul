@@ -1,4 +1,5 @@
 import type { AuditResult, BehindBehavior, PackageManager, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig } from './types.js'
+import { appendFileSync } from 'node:fs'
 import { rangePrefix } from './config.js'
 
 const PADDING = 2
@@ -298,4 +299,56 @@ export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier,
   }
 
   console.log()
+}
+
+export function writeSummary({ results, lag, behindBehavior, summaryPath }: {
+  results: AuditResult[]
+  lag: number
+  behindBehavior: BehindBehavior
+  summaryPath: string
+}): void {
+  const sorted = results.toSorted((a, b) => a.name.localeCompare(b.name))
+  const hasInstalled = results.some(r => r.installed !== null)
+  const violations = results.filter(r => r.status === 'pin' || r.status === 'unresolved' || (r.status === 'behind' && behindBehavior === 'report'))
+  const icon = violations.length > 0 ? ':x:' : ':white_check_mark:'
+
+  const lines: string[] = []
+  lines.push(`## ${icon} recul — staying ${lag} version${lag === 1 ? '' : 's'} behind latest\n`)
+
+  const header = ['package', 'declared', '→ target', ...(hasInstalled ? ['installed'] : []), 'latest', 'gap', 'status']
+  const separator = header.map(() => '---')
+  lines.push(`| ${header.join(' | ')} |`)
+  lines.push(`| ${separator.join(' | ')} |`)
+
+  for (const r of sorted) {
+    let statusLabel: string
+    if (r.status === 'pin')
+      statusLabel = ':arrow_down: will pin back'
+    else if (r.status === 'unresolved')
+      statusLabel = ':x: unresolved'
+    else if (r.status === 'behind' && behindBehavior === 'report')
+      statusLabel = ':arrow_up: safe to upgrade'
+    else
+      statusLabel = ':white_check_mark: ok'
+
+    const cells = [
+      r.name,
+      r.declared,
+      r.target ?? '—',
+      ...(hasInstalled ? [r.installed ?? '—'] : []),
+      r.latest ?? '—',
+      r.versionsFromLatest !== null ? String(r.versionsFromLatest) : '—',
+      statusLabel,
+    ]
+    lines.push(`| ${cells.join(' | ')} |`)
+  }
+
+  if (violations.length === 0) {
+    lines.push('\n> All audited packages are within the lag policy.')
+  }
+  else {
+    lines.push(`\n> **${violations.length} violation${violations.length === 1 ? '' : 's'} found.** Run \`recul --fix\` to apply catalog fixes or see the install commands in the workflow log.`)
+  }
+
+  appendFileSync(summaryPath, `${lines.join('\n')}\n`)
 }
