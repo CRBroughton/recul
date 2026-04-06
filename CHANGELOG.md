@@ -1,5 +1,11 @@
 # recul
 
+## 0.3.0
+
+### Minor Changes
+
+- 3e24462: feat(resolve): ✨ add sameMajor config to restrict candidates to current major
+
 ## 0.2.0
 
 ### Minor Changes
