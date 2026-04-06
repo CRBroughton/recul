@@ -1,7 +1,7 @@
 import antfu from '@antfu/eslint-config'
 
 export default antfu({
-  ignores: ['.local/'],
+  ignores: ['.local/', '**/*.yml', '**/*.yaml'],
   overrides: {
     javascript: {
       'node/prefer-global/process': 'off',

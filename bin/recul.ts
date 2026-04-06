@@ -107,6 +107,14 @@ const main = defineCommand({
     }
 
     printResults({ results, lag, pm, behindBehavior, rangeSpecifier, sameMajor, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}), ...(catalogPackages !== undefined ? { workspaceFile: 'pnpm-workspace.yaml' } : {}), ...(fixed !== undefined ? { fixed } : {}) })
+
+    const hasViolations = results.some(r =>
+      r.status === 'pin'
+      || r.status === 'unresolved'
+      || (r.status === 'behind' && behindBehavior === 'report'),
+    )
+    if (hasViolations)
+      process.exit(1)
   },
 })
 

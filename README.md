@@ -135,3 +135,29 @@ When a lockfile is present, recul reads the installed version from it and uses t
 |----------------|----------|
 | npm | `package-lock.json` (v3) |
 | pnpm | `pnpm-lock.yaml` (v6+) |
+
+## GitHub Actions
+
+Add recul to your CI pipeline to fail the workflow when dependencies are ahead of their lag target:
+
+```yaml
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+  with:
+    node-version: 20
+- uses: CRBroughton/recul@v1
+```
+
+### Inputs
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `working-directory` | `.` | Directory containing `recul.config.jsonc` and `package.json` |
+| `fail-on-violations` | `true` | Set to `false` for informational runs that never fail |
+
+### Exit codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | All packages are within their lag target |
+| `1` | One or more packages need pinning, are unresolved, or (when `behindBehavior: report`) are behind target |

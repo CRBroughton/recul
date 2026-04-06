@@ -1,0 +1,32 @@
+name: 'recul'
+description: 'Stay N versions behind latest — audit npm dependencies for supply chain safety'
+author: 'Craig R Broughton'
+
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  working-directory:
+    description: 'Directory containing the recul.config.jsonc and package.json to audit'
+    required: false
+    default: '.'
+  fail-on-violations:
+    description: 'Exit with code 1 when violations are found. Set to false for informational runs.'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run recul
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if npx --yes @crbroughton/recul; then
+          exit 0
+        else
+          if [ "${{ inputs.fail-on-violations }}" = "true" ]; then
+            exit 1
+          fi
+        fi
