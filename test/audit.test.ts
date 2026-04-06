@@ -2,6 +2,8 @@ import type { PackageJson } from '../src/types.js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { auditDeps } from '../src/audit.js'
 
+const CATALOG_REF_RE = /catalog reference/
+
 function makeRegistry(versions: Record<string, Record<string, unknown>>) {
   return vi.fn(async (input: string | URL | Request) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
@@ -262,7 +264,7 @@ describe('auditDeps — fromCatalog', () => {
     })
 
     expect(result!.status).toBe('unresolved')
-    expect(result!.error).toMatch(/catalog reference/)
+    expect(result!.error).toMatch(CATALOG_REF_RE)
     expect(result!.fromCatalog).toBe(true)
   })
 
