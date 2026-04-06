@@ -1,5 +1,5 @@
-import type { AuditResult, AuditStatus, InstalledVersionMap, PackageJson, RangeSpecifier, RangeSpecifierConfig } from './types.js'
-import { resolveRangeSpecifier } from './config.js'
+import type { AuditResult, AuditStatus, InstalledVersionMap, PackageJson, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig } from './types.js'
+import { resolveSameMajor, resolveRangeSpecifier } from './config.js'
 import { resolvePackage } from './resolve.js'
 import { bareVersion, detectSpecifier, semverCompareForSpecifier } from './semver.js'
 
@@ -9,12 +9,13 @@ interface AuditOneOptions {
   lag: number
   minimumReleaseAge?: number
   preReleaseFilter: string[]
+  sameMajor: boolean
   rangeSpecifier: RangeSpecifier
   installedVersion: string | null
   fromCatalog: boolean
 }
 
-async function auditOne({ name, rawVersion, lag, minimumReleaseAge, preReleaseFilter, rangeSpecifier, installedVersion, fromCatalog }: AuditOneOptions): Promise<AuditResult> {
+async function auditOne({ name, rawVersion, lag, minimumReleaseAge, preReleaseFilter, sameMajor, rangeSpecifier, installedVersion, fromCatalog }: AuditOneOptions): Promise<AuditResult> {
   const declared = rawVersion
   const isCatalogRef = rawVersion.startsWith('catalog:')
 
@@ -30,7 +31,7 @@ async function auditOne({ name, rawVersion, lag, minimumReleaseAge, preReleaseFi
 
   let resolved
   try {
-    resolved = await resolvePackage({ name, lag, preReleaseFilter, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}) })
+    resolved = await resolvePackage({ name, lag, preReleaseFilter, sameMajor, currentVersion: current, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}) })
   }
   catch (err) {
     const message = err instanceof Error ? err.message : String(err)
@@ -60,6 +61,7 @@ export interface AuditDepsOptions {
   lag: number
   minimumReleaseAge?: number
   preReleaseFilter?: string[]
+  sameMajor?: SameMajorConfig
   rangeSpecifier: RangeSpecifierConfig
   ignore?: string[]
   installed?: InstalledVersionMap
@@ -72,7 +74,7 @@ export interface AuditDepsOptions {
  * - `installed`: lockfile-resolved version map; used for comparison when present.
  * - `rangeSpecifier`: global string or per-package record.
  */
-export async function auditDeps({ pkgJson, lag, minimumReleaseAge, preReleaseFilter = [], rangeSpecifier, ignore = [], installed, catalogPackages }: AuditDepsOptions): Promise<AuditResult[]> {
+export async function auditDeps({ pkgJson, lag, minimumReleaseAge, preReleaseFilter = [], sameMajor = true, rangeSpecifier, ignore = [], installed, catalogPackages }: AuditDepsOptions): Promise<AuditResult[]> {
   const deps: Record<string, string> = {
     ...(pkgJson.dependencies ?? {}),
     ...(pkgJson.devDependencies ?? {}),
@@ -92,6 +94,7 @@ export async function auditDeps({ pkgJson, lag, minimumReleaseAge, preReleaseFil
         lag,
         ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}),
         preReleaseFilter,
+        sameMajor: resolveSameMajor({ config: sameMajor, name: n }),
         rangeSpecifier: resolveRangeSpecifier({ config: rangeSpecifier, name: n }),
         installedVersion: installed?.[n] ?? null,
         fromCatalog: catalogPackages?.has(n) ?? false,

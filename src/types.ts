@@ -13,6 +13,16 @@ export type RangeSpecifier = 'exact' | 'caret' | 'tilde'
  */
 export type RangeSpecifierConfig = RangeSpecifier | Record<string, RangeSpecifier>
 
+/**
+ * Either a boolean applied to all packages, or a per-package map.
+ * The "default" key in the map acts as the fallback for unlisted packages.
+ *
+ * @example
+ * true
+ * { "default": true, "axios": false }
+ */
+export type SameMajorConfig = boolean | Record<string, boolean>
+
 export interface Config {
   lag: number
   file: string
@@ -22,6 +32,7 @@ export interface Config {
   rangeSpecifier: RangeSpecifierConfig
   minimumReleaseAge?: number
   preReleaseFilter: string[]
+  sameMajor: SameMajorConfig
 }
 
 /** Shape of recul.config.json(c) */
@@ -34,6 +45,7 @@ export interface ConfigFile {
   ignore?: string[]
   minimumReleaseAge?: number
   preReleaseFilter?: string[]
+  sameMajor?: SameMajorConfig
 }
 
 export interface ResolvedPackage {

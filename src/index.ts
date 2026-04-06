@@ -1,5 +1,5 @@
 export { auditDeps } from './audit.js'
-export { DEFAULTS, loadConfigFile, rangePrefix, resolveConfigDir, resolveRangeSpecifier } from './config.js'
+export { DEFAULTS, loadConfigFile, rangePrefix, resolveConfigDir, resolveRangeSpecifier, resolveSameMajor } from './config.js'
 export { printResults } from './output.js'
 export { computeTarget, fetchStableVersions, resolvePackage } from './resolve.js'
 export type {
@@ -14,4 +14,5 @@ export type {
   RangeSpecifier,
   RangeSpecifierConfig,
   ResolvedPackage,
+  SameMajorConfig,
 } from './types.js'

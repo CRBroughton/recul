@@ -1,4 +1,4 @@
-import type { AuditResult, BehindBehavior, PackageManager, RangeSpecifier, RangeSpecifierConfig } from './types.js'
+import type { AuditResult, BehindBehavior, PackageManager, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig } from './types.js'
 import { rangePrefix } from './config.js'
 
 const COL = { name: 20, version: 16, status: 22 } as const
@@ -72,12 +72,14 @@ function printSettings({
   behindBehavior,
   rangeSpecifier,
   minimumReleaseAge,
+  sameMajor,
 }: {
   lag: number
   pm: PackageManager
   behindBehavior: BehindBehavior
   rangeSpecifier: RangeSpecifierConfig
   minimumReleaseAge?: number
+  sameMajor: SameMajorConfig
 }): void {
   const behindDesc = behindBehavior === 'report'
     ? 'report packages behind target'
@@ -104,6 +106,8 @@ function printSettings({
   if (minimumReleaseAge !== undefined) {
     console.log(`  ${col('minAge')}${col(String(minimumReleaseAge))};  skip versions published within the last ${minimumReleaseAge} day${minimumReleaseAge === 1 ? '' : 's'}`)
   }
+  const sameMajorVal = typeof sameMajor === 'boolean' ? String(sameMajor) : 'per-pkg'
+  console.log(`  ${col('sameMajor')}${col(sameMajorVal)};  ${typeof sameMajor === 'boolean' ? (sameMajor ? 'restrict candidates to current major' : 'consider all majors') : 'per-package major restriction'}`)
 }
 
 function printCatalogEdits({
@@ -134,12 +138,13 @@ export interface PrintResultsOptions {
   pm: PackageManager
   behindBehavior: BehindBehavior
   rangeSpecifier: RangeSpecifierConfig
+  sameMajor: SameMajorConfig
   minimumReleaseAge?: number
   workspaceFile?: string
   fixed?: string[]
 }
 
-export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier, minimumReleaseAge, workspaceFile, fixed }: PrintResultsOptions): void {
+export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier, sameMajor, minimumReleaseAge, workspaceFile, fixed }: PrintResultsOptions): void {
   const violations = results.filter(r => r.status === 'pin')
   const behind = results.filter(r => r.status === 'behind')
   const unresolved = results.filter(r => r.status === 'unresolved')
@@ -155,7 +160,7 @@ export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier,
   const hasInstalled = results.some(r => r.installed !== null)
 
   console.log(`\nrecul  staying ${lag} version${lag === 1 ? '' : 's'} behind latest\n`)
-  printSettings({ lag, pm, behindBehavior, rangeSpecifier, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}) })
+  printSettings({ lag, pm, behindBehavior, rangeSpecifier, sameMajor, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}) })
   console.log()
 
   // Column order: package · declared · → target · installed · latest · status

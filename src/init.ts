@@ -69,7 +69,12 @@ const TEMPLATE = `{
 
   // Version strings containing any of these substrings are excluded from
   // the candidate list and treated as pre-releases.
-  "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary", "-dev"]
+  "preReleaseFilter": ["-alpha", "-beta", "-rc", "-next", "-canary", "-dev"],
+
+  // Restrict the candidate list to the same major as the currently declared version.
+  // Prevents recul from resolving a target across major version lines (e.g. axios 0.x vs 1.x).
+  // Can be a per-package map: { "default": true, "axios": false }
+  "sameMajor": true
 }
 `
 

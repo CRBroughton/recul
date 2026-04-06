@@ -1,4 +1,4 @@
-import type { Config, ConfigFile, RangeSpecifier, RangeSpecifierConfig } from './types.js'
+import type { Config, ConfigFile, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig } from './types.js'
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { parseJSONC } from 'confbox'
@@ -47,6 +47,7 @@ export const DEFAULTS: Config = {
   behindBehavior: 'ignore',
   rangeSpecifier: 'exact',
   preReleaseFilter: ['-alpha', '-beta', '-rc', '-next', '-canary', '-dev'],
+  sameMajor: true,
 }
 
 /**
@@ -54,6 +55,15 @@ export const DEFAULTS: Config = {
  * When config is a string it applies to all packages.
  * When config is a record, looks up by name, then "default", then falls back to "exact".
  */
+export function resolveSameMajor({ config, name }: { config: SameMajorConfig, name: string }): boolean {
+  if (typeof config === 'boolean')
+    return config
+  const specific = config[name]
+  if (specific !== undefined)
+    return specific
+  return config.default ?? true
+}
+
 export function resolveRangeSpecifier({ config, name }: { config: RangeSpecifierConfig, name: string }): RangeSpecifier {
   if (typeof config === 'string')
     return config

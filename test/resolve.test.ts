@@ -111,6 +111,94 @@ describe('fetchStableVersions', () => {
   })
 })
 
+// ─── fetchStableVersions — majorFilter ───────────────────────────────────────
+
+describe('fetchStableVersions — majorFilter', () => {
+  beforeEach(() => vi.restoreAllMocks())
+
+  it('filters to only versions matching the given major', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '0.27.0': {}, '0.28.0': {}, '1.0.0': {}, '1.1.0': {}, '1.2.0': {} },
+      }), { status: 200 }),
+    ))
+    const versions = await fetchStableVersions('axios', undefined, [], 0)
+    expect(versions).toEqual(['0.27.0', '0.28.0'])
+  })
+
+  it('returns versions from the correct major when two lines are interleaved', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '0.27.0': {}, '1.0.0': {}, '0.28.0': {}, '1.1.0': {}, '0.29.0': {}, '1.2.0': {} },
+      }), { status: 200 }),
+    ))
+    const versions = await fetchStableVersions('axios', undefined, [], 1)
+    expect(versions).toEqual(['1.0.0', '1.1.0', '1.2.0'])
+  })
+
+  it('returns empty array when no versions match the given major', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '1.0.0': {}, '1.1.0': {} },
+      }), { status: 200 }),
+    ))
+    const versions = await fetchStableVersions('pkg', undefined, [], 2)
+    expect(versions).toEqual([])
+  })
+
+  it('applies both majorFilter and minimumReleaseAge together', async () => {
+    const old = new Date(Date.now() - 10 * DAY_MS).toISOString()
+    const recent = new Date(Date.now() - 1 * DAY_MS).toISOString()
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '1.0.0': {}, '1.1.0': {}, '2.0.0': {} },
+        time: { '1.0.0': old, '1.1.0': recent, '2.0.0': old },
+      }), { status: 200 }),
+    ))
+    const versions = await fetchStableVersions('pkg', 3, [], 1)
+    expect(versions).toEqual(['1.0.0'])
+  })
+})
+
+// ─── resolvePackage — sameMajor ───────────────────────────────────────────────
+
+describe('resolvePackage — sameMajor', () => {
+  beforeEach(() => vi.restoreAllMocks())
+
+  it('restricts candidates to the current major when sameMajor is true', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '0.27.0': {}, '0.28.0': {}, '1.0.0': {}, '1.1.0': {}, '1.2.0': {} },
+      }), { status: 200 }),
+    ))
+    const result = await resolvePackage({ name: 'axios', lag: 1, sameMajor: true, currentVersion: '0.27.0' })
+    expect(result.latest).toBe('0.28.0')
+    expect(result.target).toBe('0.27.0')
+    expect(result.stableVersions).toEqual(['0.27.0', '0.28.0'])
+  })
+
+  it('considers all majors when sameMajor is false', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '0.27.0': {}, '0.28.0': {}, '1.0.0': {}, '1.1.0': {}, '1.2.0': {} },
+      }), { status: 200 }),
+    ))
+    const result = await resolvePackage({ name: 'axios', lag: 1, sameMajor: false, currentVersion: '0.27.0' })
+    expect(result.latest).toBe('1.2.0')
+    expect(result.stableVersions).toHaveLength(5)
+  })
+
+  it('does not apply major filter when currentVersion is not provided', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({
+        versions: { '0.27.0': {}, '1.0.0': {}, '1.1.0': {} },
+      }), { status: 200 }),
+    ))
+    const result = await resolvePackage({ name: 'pkg', lag: 1, sameMajor: true })
+    expect(result.stableVersions).toHaveLength(3)
+  })
+})
+
 // ─── resolvePackage ───────────────────────────────────────────────────────────
 
 describe('resolvePackage', () => {

@@ -8,6 +8,7 @@ import {
   rangePrefix,
   resolveConfigDir,
   resolveRangeSpecifier,
+  resolveSameMajor,
 } from '../src/config.js'
 
 // ─── resolveRangeSpecifier ────────────────────────────────────────────────────
@@ -31,6 +32,30 @@ describe('resolveRangeSpecifier', () => {
 
   it('ignores an invalid value in the map and falls back to "exact"', () => {
     expect(resolveRangeSpecifier({ config: { react: 'banana' as never }, name: 'react' })).toBe('exact')
+  })
+})
+
+// ─── resolveSameMajor ─────────────────────────────────────────────────────────
+
+describe('resolveSameMajor', () => {
+  it('returns the boolean directly when config is true', () => {
+    expect(resolveSameMajor({ config: true, name: 'axios' })).toBe(true)
+  })
+
+  it('returns the boolean directly when config is false', () => {
+    expect(resolveSameMajor({ config: false, name: 'axios' })).toBe(false)
+  })
+
+  it('returns the per-package value when the name is in the map', () => {
+    expect(resolveSameMajor({ config: { default: true, axios: false }, name: 'axios' })).toBe(false)
+  })
+
+  it('falls back to "default" key when name is not in the map', () => {
+    expect(resolveSameMajor({ config: { default: false, axios: true }, name: 'react' })).toBe(false)
+  })
+
+  it('falls back to true when neither name nor default is present', () => {
+    expect(resolveSameMajor({ config: { axios: false }, name: 'react' })).toBe(true)
   })
 })
 

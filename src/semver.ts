@@ -47,6 +47,11 @@ export function semverCompareForSpecifier({ versionA, versionB, specifier }: Sem
   return 0
 }
 
+/** Extract the major version number from a bare semver string. */
+export function majorVersion(version: string): number {
+  return Number(version.split('.')[0] ?? '0')
+}
+
 /** Detect the range specifier prefix declared in a raw version string. */
 export function detectSpecifier(raw: string): DeclaredSpecifier {
   if (raw.startsWith('^'))

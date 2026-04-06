@@ -1,5 +1,5 @@
 import type { ResolvedPackage } from './types.js'
-import { semverCompare } from './semver.js'
+import { majorVersion, semverCompare } from './semver.js'
 
 const REGISTRY = 'https://registry.npmjs.org'
 const DAY_MS = 86_400_000
@@ -24,7 +24,7 @@ function isPackument(value: unknown): value is Packument {
  * Returns them in publish order (oldest → newest), stable only.
  * When minimumReleaseAge is set (days), versions published more recently are excluded.
  */
-export async function fetchStableVersions(name: string, minimumReleaseAge?: number, preReleaseFilter: string[] = []): Promise<string[]> {
+export async function fetchStableVersions(name: string, minimumReleaseAge?: number, preReleaseFilter: string[] = [], majorFilter?: number): Promise<string[]> {
   const res = await fetch(`${REGISTRY}/${encodeURIComponent(name)}`)
   if (!res.ok) {
     throw new Error(`registry fetch failed for "${name}": ${res.status} ${res.statusText}`)
@@ -33,7 +33,9 @@ export async function fetchStableVersions(name: string, minimumReleaseAge?: numb
   if (!isPackument(data)) {
     throw new Error(`unexpected registry response shape for "${name}"`)
   }
-  const stable = Object.keys(data.versions).filter(v => !preReleaseFilter.some(tag => v.includes(tag)))
+  let stable = Object.keys(data.versions).filter(v => !preReleaseFilter.some(tag => v.includes(tag)))
+  if (majorFilter !== undefined)
+    stable = stable.filter(v => majorVersion(v) === majorFilter)
   if (minimumReleaseAge === undefined || minimumReleaseAge <= 0)
     return stable
   const cutoff = Date.now() - minimumReleaseAge * DAY_MS
@@ -60,8 +62,9 @@ export function computeTarget({ versions, lag }: { versions: string[], lag: numb
 }
 
 /** Resolve lag target for a single package. */
-export async function resolvePackage({ name, lag, minimumReleaseAge, preReleaseFilter = [] }: { name: string, lag: number, minimumReleaseAge?: number, preReleaseFilter?: string[] }): Promise<ResolvedPackage> {
-  const stableVersions = (await fetchStableVersions(name, minimumReleaseAge, preReleaseFilter)).sort((versionA, versionB) => semverCompare({ versionA, versionB }))
+export async function resolvePackage({ name, lag, minimumReleaseAge, preReleaseFilter = [], sameMajor = false, currentVersion }: { name: string, lag: number, minimumReleaseAge?: number, preReleaseFilter?: string[], sameMajor?: boolean, currentVersion?: string }): Promise<ResolvedPackage> {
+  const majorFilter = sameMajor && currentVersion !== undefined ? majorVersion(currentVersion) : undefined
+  const stableVersions = (await fetchStableVersions(name, minimumReleaseAge, preReleaseFilter, majorFilter)).sort((versionA, versionB) => semverCompare({ versionA, versionB }))
   const latest = stableVersions.at(-1) ?? null
   const target = computeTarget({ versions: stableVersions, lag })
   return { name, stableVersions, latest, target }

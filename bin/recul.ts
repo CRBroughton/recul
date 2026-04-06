@@ -39,12 +39,12 @@ const main = defineCommand({
 
     const config = defu(
       { file: args.file as string | undefined },
-      { lag: fileConfig.lag, file: fileConfig.packageFile, pm: fileConfig.packageManager as PackageManager | undefined, behindBehavior: fileConfig.behindBehavior, rangeSpecifier: fileConfig.rangeSpecifier, ignore: fileConfig.ignore, minimumReleaseAge: fileConfig.minimumReleaseAge, preReleaseFilter: fileConfig.preReleaseFilter },
+      { lag: fileConfig.lag, file: fileConfig.packageFile, pm: fileConfig.packageManager as PackageManager | undefined, behindBehavior: fileConfig.behindBehavior, rangeSpecifier: fileConfig.rangeSpecifier, ignore: fileConfig.ignore, minimumReleaseAge: fileConfig.minimumReleaseAge, preReleaseFilter: fileConfig.preReleaseFilter, sameMajor: fileConfig.sameMajor },
       { pm: detectedPm ?? undefined },
       DEFAULTS,
     )
 
-    const { lag, file, pm, behindBehavior, rangeSpecifier, ignore, preReleaseFilter } = config
+    const { lag, file, pm, behindBehavior, rangeSpecifier, ignore, preReleaseFilter, sameMajor } = config
     const minimumReleaseAge = config.minimumReleaseAge !== null ? config.minimumReleaseAge : undefined
 
     const pkgPath = resolve(process.cwd(), file)
@@ -81,6 +81,7 @@ const main = defineCommand({
       lag,
       ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}),
       preReleaseFilter,
+      sameMajor,
       rangeSpecifier,
       ignore,
       ...(installedMap !== null ? { installed: installedMap } : {}),
@@ -105,7 +106,7 @@ const main = defineCommand({
       }
     }
 
-    printResults({ results, lag, pm, behindBehavior, rangeSpecifier, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}), ...(catalogPackages !== undefined ? { workspaceFile: 'pnpm-workspace.yaml' } : {}), ...(fixed !== undefined ? { fixed } : {}) })
+    printResults({ results, lag, pm, behindBehavior, rangeSpecifier, sameMajor, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}), ...(catalogPackages !== undefined ? { workspaceFile: 'pnpm-workspace.yaml' } : {}), ...(fixed !== undefined ? { fixed } : {}) })
   },
 })
 
