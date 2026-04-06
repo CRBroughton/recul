@@ -4,6 +4,8 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { parseYAML } from 'confbox'
 
+const REGEX_ESCAPE = /[.*+?^${}()|[\]\\]/g
+
 interface PnpmLockEntry { version?: string }
 interface PnpmLock {
   importers?: Record<string, {
@@ -112,7 +114,7 @@ export function updatePnpmCatalog(dir: string, updates: Record<string, string>):
   const path = resolve(dir, 'pnpm-workspace.yaml')
   let content = readFileSync(path, 'utf8')
   for (const [name, version] of Object.entries(updates)) {
-    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const escaped = name.replace(REGEX_ESCAPE, '\\$&')
     const pattern = new RegExp(`^(\\s+(?:'${escaped}'|"${escaped}"|${escaped}):\\s*)(.+)$`, 'gm')
     content = content.replace(pattern, `$1${version}`)
   }

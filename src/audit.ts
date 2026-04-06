@@ -1,5 +1,5 @@
 import type { AuditResult, AuditStatus, InstalledVersionMap, PackageJson, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig } from './types.js'
-import { resolveSameMajor, resolveRangeSpecifier } from './config.js'
+import { resolveRangeSpecifier, resolveSameMajor } from './config.js'
 import { resolvePackage } from './resolve.js'
 import { bareVersion, detectSpecifier, semverCompareForSpecifier } from './semver.js'
 

@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AuditResult } from '../src/types.js'
+import { describe, expect, it } from 'vitest'
 
 function makeResult(overrides: Partial<AuditResult>): AuditResult {
   return {

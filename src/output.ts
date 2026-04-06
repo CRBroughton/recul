@@ -177,7 +177,7 @@ export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier,
   console.log(header)
   console.log(divider)
 
-  const sorted = [...results].sort((a, b) => a.name.localeCompare(b.name))
+  const sorted = results.toSorted((a, b) => a.name.localeCompare(b.name))
   for (const r of sorted) {
     let statusLabel: string
     if (r.status === 'pin')
