@@ -1,10 +1,15 @@
 import type { AuditResult, BehindBehavior, PackageManager, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig } from './types.js'
 import { rangePrefix } from './config.js'
 
-const COL = { name: 20, version: 16, status: 22 } as const
+const PADDING = 2
 
 function pad(str: string, len: number): string {
   return str.padEnd(len)
+}
+
+function colWidth(header: string, values: (string | null | undefined)[]): number {
+  const max = values.reduce((m, v) => Math.max(m, (v ?? '—').length), header.length)
+  return max + PADDING
 }
 
 function installCmd({
@@ -163,21 +168,36 @@ export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier,
   printSettings({ lag, pm, behindBehavior, rangeSpecifier, sameMajor, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}) })
   console.log()
 
-  // Column order: package · declared · → target · installed · latest · status
-  const versionCols = hasInstalled ? 4 : 3
-  const divider = '─'.repeat(COL.name + COL.version * versionCols + COL.status + 4)
-  const header
-    = `${pad('package', COL.name)
-    + pad('declared', COL.version)
-    + pad('→ target', COL.version)
-    + (hasInstalled ? pad('installed', COL.version) : '')
-    + pad('latest', COL.version)
-    }status`
+  const sorted = results.toSorted((a, b) => a.name.localeCompare(b.name))
+
+  // Column order: package · declared · → target · installed · latest · gap · status
+  const statusLabels = sorted.map((r) => {
+    let label = r.status === 'pin' ? '↓ will pin back' : r.status === 'ok' ? '✓ ok' : r.status === 'behind' ? (behindBehavior === 'report' ? '↑ safe to upgrade' : '✓ ok') : '✗ unresolved'
+    if (r.specifierMismatch)
+      label += `  ⚠ declared ${r.declaredSpecifier}`
+    return label
+  })
+  const w = {
+    name: colWidth('package', sorted.map(r => r.name)),
+    declared: colWidth('declared', sorted.map(r => r.declared)),
+    target: colWidth('→ target', sorted.map(r => r.target)),
+    installed: hasInstalled ? colWidth('installed', sorted.map(r => r.installed)) : 0,
+    latest: colWidth('latest', sorted.map(r => r.latest)),
+    gap: colWidth('gap', sorted.map(r => r.versionsFromLatest !== null ? String(r.versionsFromLatest) : null)),
+    status: 'status'.length + Math.max(0, ...statusLabels.map(s => s.length - 'status'.length)),
+  }
+  const divider = '─'.repeat(w.name + w.declared + w.target + w.installed + w.latest + w.gap + w.status)
+  const header = `${pad('package', w.name)
+  }${pad('declared', w.declared)
+  }${pad('→ target', w.target)
+  }${hasInstalled ? pad('installed', w.installed) : ''
+  }${pad('latest', w.latest)
+  }${pad('gap', w.gap)
+  }status`
 
   console.log(header)
   console.log(divider)
 
-  const sorted = results.toSorted((a, b) => a.name.localeCompare(b.name))
   for (const r of sorted) {
     let statusLabel: string
     if (r.status === 'pin')
@@ -195,11 +215,12 @@ export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier,
     }
 
     console.log(
-      pad(r.name, COL.name)
-      + pad(r.declared, COL.version)
-      + pad(r.target ?? '—', COL.version)
-      + (hasInstalled ? pad(r.installed ?? '—', COL.version) : '')
-      + pad(r.latest ?? '—', COL.version)
+      pad(r.name, w.name)
+      + pad(r.declared, w.declared)
+      + pad(r.target ?? '—', w.target)
+      + (hasInstalled ? pad(r.installed ?? '—', w.installed) : '')
+      + pad(r.latest ?? '—', w.latest)
+      + pad(r.versionsFromLatest !== null ? String(r.versionsFromLatest) : '—', w.gap)
       + statusLabel,
     )
   }

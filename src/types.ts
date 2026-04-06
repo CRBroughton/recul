@@ -81,6 +81,8 @@ export interface AuditResult {
   specifierMismatch: boolean
   /** True when the version was declared as a pnpm catalog reference. */
   fromCatalog: boolean
+  /** Number of stable versions between the installed/current version and latest. Null when unresolved. */
+  versionsFromLatest: number | null
   error?: string
 }
 

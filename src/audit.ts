@@ -21,7 +21,7 @@ async function auditOne({ name, rawVersion, lag, minimumReleaseAge, preReleaseFi
 
   // catalog: entries have no usable version in package.json — the lockfile is required
   if (isCatalogRef && installedVersion === null) {
-    return { name, declared, current: '', installed: null, target: null, latest: null, status: 'unresolved', rangeSpecifier, declaredSpecifier: 'other', specifierMismatch: false, fromCatalog, error: 'catalog reference; pnpm lockfile required' }
+    return { name, declared, current: '', installed: null, target: null, latest: null, status: 'unresolved', rangeSpecifier, declaredSpecifier: 'other', specifierMismatch: false, fromCatalog, versionsFromLatest: null, error: 'catalog reference; pnpm lockfile required' }
   }
 
   const current = isCatalogRef ? installedVersion! : bareVersion(rawVersion)
@@ -35,13 +35,13 @@ async function auditOne({ name, rawVersion, lag, minimumReleaseAge, preReleaseFi
   }
   catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    return { name, declared, current, installed, target: null, latest: null, status: 'unresolved', rangeSpecifier, declaredSpecifier, specifierMismatch, fromCatalog, error: message }
+    return { name, declared, current, installed, target: null, latest: null, status: 'unresolved', rangeSpecifier, declaredSpecifier, specifierMismatch, fromCatalog, versionsFromLatest: null, error: message }
   }
 
-  const { target, latest } = resolved
+  const { target, latest, stableVersions } = resolved
 
   if (target === null) {
-    return { name, declared, current, installed, target: null, latest, status: 'unresolved', rangeSpecifier, declaredSpecifier, specifierMismatch, fromCatalog, error: 'no stable versions found' }
+    return { name, declared, current, installed, target: null, latest, status: 'unresolved', rangeSpecifier, declaredSpecifier, specifierMismatch, fromCatalog, versionsFromLatest: null, error: 'no stable versions found' }
   }
 
   const compareVersion = installed ?? current
@@ -53,7 +53,10 @@ async function auditOne({ name, rawVersion, lag, minimumReleaseAge, preReleaseFi
     status = 'ok'
   else status = 'behind'
 
-  return { name, declared, current, installed, target, latest, status, rangeSpecifier, declaredSpecifier, specifierMismatch, fromCatalog }
+  const compareIdx = stableVersions.indexOf(compareVersion)
+  const versionsFromLatest = compareIdx === -1 ? null : (stableVersions.length - 1) - compareIdx
+
+  return { name, declared, current, installed, target, latest, status, rangeSpecifier, declaredSpecifier, specifierMismatch, fromCatalog, versionsFromLatest }
 }
 
 export interface AuditDepsOptions {

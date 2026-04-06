@@ -108,11 +108,11 @@ settings
   range     exact       ;  pin exact versions
   minAge    3           ;  skip versions published within the last 3 days
 
-package              declared          → target          latest            status
-────────────────────────────────────────────────────────────────────────────────
-express              ^4.19.2           4.17.3            4.19.2            ↓ will pin back
-react                ^18.3.1           18.1.0            18.3.1            ↓ will pin back
-typescript           5.4.5             5.4.5             5.4.5             ✓ ok
+package              declared          → target          latest            gap   status
+──────────────────────────────────────────────────────────────────────────────────────
+express              ^4.19.2           4.17.3            4.19.2            2     ↓ will pin back
+react                ^18.3.1           18.1.0            18.3.1            2     ↓ will pin back
+typescript           5.4.5             5.4.5             5.4.5             0     ✓ ok
 
 to pin back:
   pnpm add express@4.17.3 react@18.1.0
