@@ -15,6 +15,10 @@ inputs:
     description: 'Exit with code 1 when violations are found. Set to false for informational runs.'
     required: false
     default: 'true'
+  behind-behavior:
+    description: 'Override behindBehavior from config (ignore | report)'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -24,7 +28,11 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         npm install -g @crbroughton/recul
-        if recul; then
+        BEHIND_FLAG=""
+        if [ -n "${{ inputs.behind-behavior }}" ]; then
+          BEHIND_FLAG="--behindBehavior=${{ inputs.behind-behavior }}"
+        fi
+        if recul $BEHIND_FLAG; then
           exit 0
         else
           if [ "${{ inputs.fail-on-violations }}" = "true" ]; then

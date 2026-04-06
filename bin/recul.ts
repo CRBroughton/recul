@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import type { PackageJson, PackageManager } from '../src/types.js'
+import type { BehindBehavior, PackageJson, PackageManager } from '../src/types.js'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { defineCommand, runMain } from 'citty'
@@ -23,6 +23,7 @@ const main = defineCommand({
   args: {
     file: { type: 'string', alias: 'f', description: 'Path to package.json (default: package.json)' },
     fix: { type: 'boolean', description: 'Apply catalog fixes directly to pnpm-workspace.yaml' },
+    behindBehavior: { type: 'string', description: 'Override behindBehavior from config (ignore | report)' },
   },
   subCommands: { init: initCommand },
   async run({ args }) {
@@ -38,7 +39,7 @@ const main = defineCommand({
     const detectedPm = detectPackageManager(configDir)
 
     const config = defu(
-      { file: args.file as string | undefined },
+      { file: args.file as string | undefined, behindBehavior: args.behindBehavior as BehindBehavior | undefined },
       { lag: fileConfig.lag, file: fileConfig.packageFile, pm: fileConfig.packageManager as PackageManager | undefined, behindBehavior: fileConfig.behindBehavior, rangeSpecifier: fileConfig.rangeSpecifier, ignore: fileConfig.ignore, minimumReleaseAge: fileConfig.minimumReleaseAge, preReleaseFilter: fileConfig.preReleaseFilter, sameMajor: fileConfig.sameMajor },
       { pm: detectedPm ?? undefined },
       DEFAULTS,

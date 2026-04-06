@@ -88,6 +88,14 @@ Commit a `recul.config.jsonc` to standardise settings across the team.
 
 A config file is required; run `recul init` if you do not have one.
 
+## CLI flags
+
+| Flag | Description |
+|------|-------------|
+| `-f, --file` | Path to `package.json` (default: `package.json`) |
+| `--fix` | Apply catalog fixes directly to `pnpm-workspace.yaml` |
+| `--behindBehavior=<value>` | Override `behindBehavior` from config (`ignore` or `report`) |
+
 ## Output
 
 ```
@@ -154,6 +162,7 @@ Add recul to your CI pipeline to fail the workflow when dependencies are ahead o
 |-------|---------|-------------|
 | `working-directory` | `.` | Directory containing `recul.config.jsonc` and `package.json` |
 | `fail-on-violations` | `true` | Set to `false` for informational runs that never fail |
+| `behind-behavior` | `` | Override `behindBehavior` from config (`ignore` or `report`) |
 
 ### Exit codes
 
