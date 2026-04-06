@@ -1,5 +1,5 @@
-import type { AuditResult, AuditStatus, InstalledVersionMap, PackageJson, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig } from './types.js'
-import { resolveRangeSpecifier, resolveSameMajor } from './config.js'
+import type { AuditResult, AuditStatus, BehindBehavior, InstalledVersionMap, PackageJson, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig } from './types.js'
+import { rangePrefix, resolveRangeSpecifier, resolveSameMajor } from './config.js'
 import { resolvePackage } from './resolve.js'
 import { bareVersion, detectSpecifier, semverCompareForSpecifier } from './semver.js'
 
@@ -101,4 +101,24 @@ export async function auditDeps({ pkgJson, lag, minimumReleaseAge, preReleaseFil
       }),
     ),
   )
+}
+
+/**
+ * Build the catalog update map for --fix.
+ * Returns a record of package name → versioned string (with range prefix applied).
+ */
+export function buildCatalogUpdates(results: AuditResult[], behindBehavior: BehindBehavior): Record<string, string> {
+  const updates: Record<string, string> = {}
+  for (const r of results) {
+    if (!r.fromCatalog)
+      continue
+    const prefix = rangePrefix(r.rangeSpecifier)
+    if (r.status === 'pin' && r.target !== null)
+      updates[r.name] = `${prefix}${r.target}`
+    else if (r.status === 'behind' && behindBehavior === 'report' && r.target !== null)
+      updates[r.name] = `${prefix}${r.target}`
+    else if (r.specifierMismatch && r.status !== 'pin')
+      updates[r.name] = `${prefix}${r.current}`
+  }
+  return updates
 }

@@ -1,6 +1,6 @@
-import type { PackageJson } from '../src/types.js'
+import type { AuditResult, PackageJson } from '../src/types.js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { auditDeps } from '../src/audit.js'
+import { auditDeps, buildCatalogUpdates } from '../src/audit.js'
 
 const CATALOG_REF_RE = /catalog reference/
 
@@ -285,5 +285,61 @@ describe('auditDeps — fromCatalog', () => {
     expect(result!.status).toBe('behind')
     expect(result!.fromCatalog).toBe(true)
     expect(result!.target).toBe('4.1.0')
+  })
+})
+
+// ─── buildCatalogUpdates ──────────────────────────────────────────────────────
+
+function makeResult(overrides: Partial<AuditResult>): AuditResult {
+  return {
+    name: 'pkg',
+    declared: '1.0.0',
+    current: '1.0.0',
+    installed: null,
+    target: '1.0.0',
+    latest: '1.0.0',
+    status: 'ok',
+    rangeSpecifier: 'exact',
+    declaredSpecifier: 'exact',
+    specifierMismatch: false,
+    fromCatalog: true,
+    ...overrides,
+  }
+}
+
+describe('buildCatalogUpdates', () => {
+  it('writes bare version for exact specifier on pin', () => {
+    const results = [makeResult({ name: 'typescript', status: 'pin', target: '5.8.3', rangeSpecifier: 'exact' })]
+    expect(buildCatalogUpdates(results, 'ignore')).toEqual({ typescript: '5.8.3' })
+  })
+
+  it('applies tilde prefix for tilde specifier on pin', () => {
+    const results = [makeResult({ name: 'typescript', status: 'pin', target: '5.8.3', rangeSpecifier: 'tilde' })]
+    expect(buildCatalogUpdates(results, 'ignore')).toEqual({ typescript: '~5.8.3' })
+  })
+
+  it('applies caret prefix for caret specifier on pin', () => {
+    const results = [makeResult({ name: 'react', status: 'pin', target: '18.1.0', rangeSpecifier: 'caret' })]
+    expect(buildCatalogUpdates(results, 'ignore')).toEqual({ react: '^18.1.0' })
+  })
+
+  it('includes behind packages when behindBehavior is report', () => {
+    const results = [makeResult({ name: 'react', status: 'behind', target: '18.1.0', rangeSpecifier: 'exact' })]
+    expect(buildCatalogUpdates(results, 'report')).toEqual({ react: '18.1.0' })
+  })
+
+  it('excludes behind packages when behindBehavior is ignore', () => {
+    const results = [makeResult({ name: 'react', status: 'behind', target: '18.1.0' })]
+    expect(buildCatalogUpdates(results, 'ignore')).toEqual({})
+  })
+
+  it('excludes non-catalog packages', () => {
+    const results = [makeResult({ name: 'react', status: 'pin', target: '18.1.0', fromCatalog: false })]
+    expect(buildCatalogUpdates(results, 'ignore')).toEqual({})
+  })
+
+  it('applies prefix on specifierMismatch when not pin', () => {
+    const results = [makeResult({ name: 'lodash', status: 'ok', current: '4.17.21', specifierMismatch: true, rangeSpecifier: 'tilde' })]
+    expect(buildCatalogUpdates(results, 'ignore')).toEqual({ lodash: '~4.17.21' })
   })
 })

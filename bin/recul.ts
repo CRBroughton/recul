@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path'
 import { defineCommand, runMain } from 'citty'
 import { defu } from 'defu'
 import { destr } from 'destr'
-import { auditDeps } from '../src/audit.js'
+import { auditDeps, buildCatalogUpdates } from '../src/audit.js'
 import { DEFAULTS, loadConfigFile, resolveConfigDir } from '../src/config.js'
 import { runInit } from '../src/init.js'
 import { detectPackageManager, loadLockfile, loadPnpmCatalog, npmAdapter, pnpmAdapter, resolveCatalogRefs, updatePnpmCatalog } from '../src/lockfile.js'
@@ -89,17 +89,7 @@ const main = defineCommand({
     })
     let fixed: string[] | undefined
     if (args.fix && catalogPackages !== undefined) {
-      const updates: Record<string, string> = {}
-      for (const r of results) {
-        if (!r.fromCatalog)
-          continue
-        if (r.status === 'pin' && r.target !== null)
-          updates[r.name] = r.target
-        else if (r.status === 'behind' && behindBehavior === 'report' && r.target !== null)
-          updates[r.name] = r.target
-        else if (r.specifierMismatch && r.status !== 'pin')
-          updates[r.name] = r.current
-      }
+      const updates = buildCatalogUpdates(results, behindBehavior)
       if (Object.keys(updates).length > 0) {
         updatePnpmCatalog(pkgDir, updates)
         fixed = Object.keys(updates)

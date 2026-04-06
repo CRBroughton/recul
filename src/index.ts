@@ -1,4 +1,4 @@
-export { auditDeps } from './audit.js'
+export { auditDeps, buildCatalogUpdates } from './audit.js'
 export { DEFAULTS, loadConfigFile, rangePrefix, resolveConfigDir, resolveRangeSpecifier, resolveSameMajor } from './config.js'
 export { printResults } from './output.js'
 export { computeTarget, fetchStableVersions, resolvePackage } from './resolve.js'
