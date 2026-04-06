@@ -1,5 +1,11 @@
 # recul
 
+## 0.4.1
+
+### Patch Changes
+
+- 9d8da5f: fix: 🐛 apply rangeSpecifier prefix when writing catalog fixes
+
 ## 0.4.0
 
 ### Minor Changes
