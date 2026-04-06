@@ -1,5 +1,11 @@
 # recul
 
+## 0.4.0
+
+### Minor Changes
+
+- 5b0051f: feat: ✨ add exit codes and GitHub Action
+
 ## 0.3.0
 
 ### Minor Changes
