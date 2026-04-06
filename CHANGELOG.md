@@ -1,5 +1,12 @@
 # recul
 
+## 0.5.0
+
+### Minor Changes
+
+- 46d7515: Add `gap` column showing number of stable versions between installed and latest. Refactor table to use dynamic column widths based on content. Add `--behindBehavior` CLI flag and `behind-behavior` action input to override config at runtime.
+- 67df552: feat(cli): :sparkles: add support for behindBehavior as cli arg
+
 ## 0.4.1
 
 ### Patch Changes
