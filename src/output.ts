@@ -1,17 +1,7 @@
 import type { AuditResult, BehindBehavior, PackageManager, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig } from './types.js'
 import { appendFileSync } from 'node:fs'
 import { rangePrefix } from './config.js'
-
-const PADDING = 2
-
-function pad(str: string, len: number): string {
-  return str.padEnd(len)
-}
-
-function colWidth(header: string, values: (string | null | undefined)[]): number {
-  const max = values.reduce((m, v) => Math.max(m, (v ?? '—').length), header.length)
-  return max + PADDING
-}
+import { computeWidths, renderHeader, renderRows } from './table.js'
 
 function installCmd({
   pm,
@@ -163,67 +153,20 @@ export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier,
   const catalogMismatches = mismatchesOnly.filter(r => r.fromCatalog)
   const standardMismatches = mismatchesOnly.filter(r => !r.fromCatalog)
   const hasActions = violations.length > 0 || (behindBehavior === 'report' && behind.length > 0)
-  const hasInstalled = results.some(r => r.installed !== null)
 
   console.log(`\nrecul  staying ${lag} version${lag === 1 ? '' : 's'} behind latest\n`)
   printSettings({ lag, pm, behindBehavior, rangeSpecifier, sameMajor, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}) })
   console.log()
 
   const sorted = results.toSorted((a, b) => a.name.localeCompare(b.name))
-
-  // Column order: package · declared · → target · installed · latest · gap · status
-  const statusLabels = sorted.map((r) => {
-    let label = r.status === 'pin' ? '↓ will pin back' : r.status === 'ok' ? '✓ ok' : r.status === 'behind' ? (behindBehavior === 'report' ? '↑ safe to upgrade' : '✓ ok') : '✗ unresolved'
-    if (r.specifierMismatch)
-      label += `  ⚠ declared ${r.declaredSpecifier}`
-    return label
-  })
-  const w = {
-    name: colWidth('package', sorted.map(r => r.name)),
-    declared: colWidth('declared', sorted.map(r => r.declared)),
-    target: colWidth('→ target', sorted.map(r => r.target)),
-    installed: hasInstalled ? colWidth('installed', sorted.map(r => r.installed)) : 0,
-    latest: colWidth('latest', sorted.map(r => r.latest)),
-    gap: colWidth('gap', sorted.map(r => r.versionsFromLatest !== null ? String(r.versionsFromLatest) : null)),
-    status: 'status'.length + Math.max(0, ...statusLabels.map(s => s.length - 'status'.length)),
-  }
-  const divider = '─'.repeat(w.name + w.declared + w.target + w.installed + w.latest + w.gap + w.status)
-  const header = `${pad('package', w.name)
-  }${pad('declared', w.declared)
-  }${pad('→ target', w.target)
-  }${hasInstalled ? pad('installed', w.installed) : ''
-  }${pad('latest', w.latest)
-  }${pad('gap', w.gap)
-  }status`
+  const w = computeWidths(sorted, behindBehavior)
+  const { header, divider } = renderHeader(w)
 
   console.log(header)
   console.log(divider)
 
-  for (const r of sorted) {
-    let statusLabel: string
-    if (r.status === 'pin')
-      statusLabel = '↓ will pin back'
-    else if (r.status === 'ok')
-      statusLabel = '✓ ok'
-    else if (r.status === 'behind' && behindBehavior === 'report')
-      statusLabel = '↑ safe to upgrade'
-    else if (r.status === 'behind')
-      statusLabel = '✓ ok'
-    else statusLabel = '✗ unresolved'
-
-    if (r.specifierMismatch) {
-      statusLabel += `  ⚠ declared ${r.declaredSpecifier}`
-    }
-
-    console.log(
-      pad(r.name, w.name)
-      + pad(r.declared, w.declared)
-      + pad(r.target ?? '—', w.target)
-      + (hasInstalled ? pad(r.installed ?? '—', w.installed) : '')
-      + pad(r.latest ?? '—', w.latest)
-      + pad(r.versionsFromLatest !== null ? String(r.versionsFromLatest) : '—', w.gap)
-      + statusLabel,
-    )
+  for (const row of renderRows(sorted, w, behindBehavior)) {
+    console.log(row)
   }
 
   if (unresolved.length > 0) {

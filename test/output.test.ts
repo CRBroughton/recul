@@ -200,27 +200,63 @@ describe('printResults — unresolved', () => {
   })
 })
 
-// ─── installed column ─────────────────────────────────────────────────────────
+// ─── writeSummary ─────────────────────────────────────────────────────────────
 
-describe('printResults — installed column', () => {
-  let lines: string[]
+describe('writeSummary', () => {
+  let tmpDir: string
+  let summaryPath: string
 
   beforeEach(() => {
-    lines = []
-    vi.spyOn(console, 'log').mockImplementation((...args) => { lines.push(args.join(' ')) })
+    tmpDir = mkdtempSync(join(tmpdir(), 'recul-test-'))
+    summaryPath = join(tmpDir, 'summary.md')
   })
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => rmSync(tmpDir, { recursive: true }))
 
-  it('shows installed column header when any result has an installed version', () => {
-    const result = makeResult({ name: 'express', installed: '5.0.0' })
-    printResults({ ...BASE_OPTS, results: [result] })
-    expect(lines.join('\n')).toContain('installed')
+  function read(): string {
+    return readFileSync(summaryPath, 'utf8')
+  }
+
+  it('writes checkmark heading when no violations', () => {
+    writeSummary({ results: [makeResult({ status: 'ok', versionsFromLatest: 2 })], lag: 2, behindBehavior: 'ignore', summaryPath })
+    expect(read()).toContain(':white_check_mark:')
+    expect(read()).toContain('2 versions behind latest')
   })
 
-  it('omits installed column when no results have an installed version', () => {
-    const result = makeResult({ name: 'express', installed: null })
-    printResults({ ...BASE_OPTS, results: [result] })
-    expect(lines.join('\n')).not.toContain('installed')
+  it('writes X heading when violations exist', () => {
+    writeSummary({ results: [makeResult({ status: 'pin', versionsFromLatest: 0 })], lag: 2, behindBehavior: 'ignore', summaryPath })
+    expect(read()).toContain(':x:')
+    expect(read()).toContain('1 violation found')
+  })
+
+  it('includes package name, target, latest and gap in table row', () => {
+    writeSummary({ results: [makeResult({ name: 'express', target: '5.0.0', latest: '5.2.0', status: 'ok', versionsFromLatest: 2 })], lag: 2, behindBehavior: 'ignore', summaryPath })
+    const out = read()
+    expect(out).toContain('express')
+    expect(out).toContain('5.0.0')
+    expect(out).toContain('5.2.0')
+    expect(out).toContain('2')
+  })
+
+  it('shows arrow_down status for pin', () => {
+    writeSummary({ results: [makeResult({ status: 'pin', versionsFromLatest: 0 })], lag: 2, behindBehavior: 'ignore', summaryPath })
+    expect(read()).toContain(':arrow_down:')
+  })
+
+  it('shows arrow_up status for behind when behindBehavior is report', () => {
+    writeSummary({ results: [makeResult({ status: 'behind', versionsFromLatest: 4 })], lag: 2, behindBehavior: 'report', summaryPath })
+    const out = read()
+    expect(out).toContain(':arrow_up:')
+    expect(out).toContain('1 violation found')
+  })
+
+  it('omits installed column when no installed versions', () => {
+    writeSummary({ results: [makeResult({ installed: null })], lag: 2, behindBehavior: 'ignore', summaryPath })
+    expect(read()).not.toContain('installed')
+  })
+
+  it('includes installed column when installed version present', () => {
+    writeSummary({ results: [makeResult({ installed: '1.0.0' })], lag: 2, behindBehavior: 'ignore', summaryPath })
+    expect(read()).toContain('installed')
   })
 })
 
