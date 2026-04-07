@@ -102,17 +102,20 @@ A config file is required; run `recul init` if you do not have one.
 recul  staying 2 versions behind latest
 
 settings
-  lag       2           ;  stay 2 versions behind latest
-  pm        pnpm        ;  the chosen package manager
-  behind    ignore      ;  ignore packages behind target
-  range     exact       ;  pin exact versions
-  minAge    3           ;  skip versions published within the last 3 days
+setting    value   description
+──────────────────────────────────────────────────────────────────
+lag        2       stay 2 versions behind latest
+pm         pnpm    the chosen package manager
+behind     ignore  ignore packages behind target
+range      exact   pin exact versions
+minAge     3       skip versions published within the last 3 days
+sameMajor  true    restrict candidates to current major
 
-package              declared          → target          latest            gap   status
-──────────────────────────────────────────────────────────────────────────────────────
-express              ^4.19.2           4.17.3            4.19.2            2     ↓ will pin back
-react                ^18.3.1           18.1.0            18.3.1            2     ↓ will pin back
-typescript           5.4.5             5.4.5             5.4.5             0     ✓ ok
+package    declared  → target  installed  latest  gap  status
+────────────────────────────────────────────────────────────────
+express    ^4.19.2   4.17.3    4.17.3     4.19.2  2    ↓ will pin back
+react      ^18.3.1   18.1.0    18.0.0     18.3.1  2    ↓ will pin back
+typescript 5.4.5     5.4.5     5.4.5      5.4.5   0    ✓ ok
 
 to pin back:
   pnpm add express@4.17.3 react@18.1.0
@@ -128,6 +131,24 @@ to pin back:
 | `✗ unresolved` | Registry fetch failed or no stable versions found |
 
 A `⚠ declared <specifier>` warning is appended when a package is declared with a different range prefix than `rangeSpecifier`; this means the audited version may differ from what is actually installed.
+
+## pnpm monorepo support
+
+In a pnpm workspace, recul detects `pnpm-workspace.yaml` and audits each package separately, grouping output by package:
+
+```
+─── packages/app ────────────────────────────────────────────────
+package    declared  → target  installed  latest  gap  status
+─────────────────────────────────────────────────────────────────
+express    5.2.1     5.0.0     5.2.1      5.2.1   0    ↓ will pin back
+
+─── packages/lib ────────────────────────────────────────────────
+package    declared  → target  installed  latest  gap  status
+─────────────────────────────────────────────────────────────────
+lodash     4.18.1    4.17.23   4.18.1     4.18.1  0    ↓ will pin back
+```
+
+Column widths are computed once across all packages so the table stays aligned. Catalog violations from all packages are collected and shown together at the end. Pass `--fix` to apply all catalog updates in one go.
 
 ## pnpm catalog support
 
@@ -163,6 +184,10 @@ Add recul to your CI pipeline to fail the workflow when dependencies are ahead o
 | `working-directory` | `.` | Directory containing `recul.config.jsonc` and `package.json` |
 | `fail-on-violations` | `true` | Set to `false` for informational runs that never fail |
 | `behind-behavior` | `` | Override `behindBehavior` from config (`ignore` or `report`) |
+
+### Job summary
+
+recul writes a markdown table to the GitHub Actions job summary automatically. In monorepo mode each workspace package gets its own section. No configuration required.
 
 ### Exit codes
 
