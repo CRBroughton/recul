@@ -135,7 +135,7 @@ const main = defineCommand({
 
       const summaryPath = process.env.GITHUB_STEP_SUMMARY
       if (summaryPath !== undefined)
-        writeSummary({ results: packageResults.flatMap(p => p.results), lag, behindBehavior, summaryPath })
+        writeSummary({ packages: packageResults, lag, behindBehavior, summaryPath })
 
       const hasViolations = packageResults.flatMap(p => p.results).some(r =>
         r.status === 'pin'
