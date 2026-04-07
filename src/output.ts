@@ -90,18 +90,32 @@ export function buildSettingsLines({
     : (rangeSpecifier.default ?? 'exact')
   const rangeNote = hasOverrides ? 'per-package specifiers configured' : rangeDesc[effectiveDefault]
 
-  const col = (s: string) => s.padEnd(10)
-  const lines = [
-    'settings',
-    `  ${col('lag')}${col(String(lag))};  stay ${lag} version${lag === 1 ? '' : 's'} behind latest`,
-    `  ${col('pm')}${col(pm)};  the chosen package manager`,
-    `  ${col('behind')}${col(behindBehavior)};  ${behindDesc}`,
-    `  ${col('range')}${rangeVal};  ${rangeNote}`,
+  const sameMajorVal = typeof sameMajor === 'boolean' ? String(sameMajor) : 'per-pkg'
+  const sameMajorDesc = typeof sameMajor === 'boolean'
+    ? (sameMajor ? 'restrict candidates to current major' : 'consider all majors')
+    : 'per-package major restriction'
+
+  const rows: [string, string, string][] = [
+    ['lag', String(lag), `stay ${lag} version${lag === 1 ? '' : 's'} behind latest`],
+    ['pm', pm, 'the chosen package manager'],
+    ['behind', behindBehavior, behindDesc],
+    ['range', rangeVal, rangeNote],
   ]
   if (minimumReleaseAge !== undefined)
-    lines.push(`  ${col('minAge')}${col(String(minimumReleaseAge))};  skip versions published within the last ${minimumReleaseAge} day${minimumReleaseAge === 1 ? '' : 's'}`)
-  const sameMajorVal = typeof sameMajor === 'boolean' ? String(sameMajor) : 'per-pkg'
-  lines.push(`  ${col('sameMajor')}${col(sameMajorVal)};  ${typeof sameMajor === 'boolean' ? (sameMajor ? 'restrict candidates to current major' : 'consider all majors') : 'per-package major restriction'}`)
+    rows.push(['minAge', String(minimumReleaseAge), `skip versions published within the last ${minimumReleaseAge} day${minimumReleaseAge === 1 ? '' : 's'}`])
+  rows.push(['sameMajor', sameMajorVal, sameMajorDesc])
+
+  const PADDING = 2
+  const keyWidth = Math.max('setting'.length, ...rows.map(r => r[0].length)) + PADDING
+  const valWidth = Math.max('value'.length, ...rows.map(r => r[1].length)) + PADDING
+  const divider = '─'.repeat(keyWidth + valWidth + rows.reduce((m, r) => Math.max(m, r[2].length), 'description'.length))
+
+  const lines = [
+    'settings',
+    `${'setting'.padEnd(keyWidth)}${'value'.padEnd(valWidth)}description`,
+    divider,
+    ...rows.map(([k, v, d]) => `${k.padEnd(keyWidth)}${v.padEnd(valWidth)}${d}`),
+  ]
   return lines
 }
 
