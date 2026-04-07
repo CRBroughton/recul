@@ -88,6 +88,14 @@ export interface AuditResult {
 
 /** Shape of what we read from package.json. */
 export interface PackageJson {
+  name?: string
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
+}
+
+export interface WorkspacePackage {
+  /** Package name from package.json, or directory path if name is absent. */
+  name: string
+  /** Absolute path to the package directory. */
+  dir: string
 }

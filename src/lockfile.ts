@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 import { destr } from 'destr'
 
 export { npmAdapter, parseNpmLock } from './adapters/npm.js'
-export { loadPnpmCatalog, parsePnpmLock, pnpmAdapter, resolveCatalogRefs, updatePnpmCatalog } from './adapters/pnpm.js'
+export { findWorkspaceRoot, loadPnpmCatalog, parsePnpmLock, pnpmAdapter, resolveCatalogRefs, resolveWorkspacePackages, updatePnpmCatalog } from './adapters/pnpm.js'
 
 export interface LockfileAdapter {
   /** Filename to look for relative to the package.json directory. */

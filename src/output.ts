@@ -1,4 +1,4 @@
-import type { AuditResult, BehindBehavior, PackageManager, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig } from './types.js'
+import type { AuditResult, BehindBehavior, PackageManager, RangeSpecifier, RangeSpecifierConfig, SameMajorConfig, WorkspacePackage } from './types.js'
 import { appendFileSync } from 'node:fs'
 import { rangePrefix } from './config.js'
 import { computeWidths, renderHeader, renderRows } from './table.js'
@@ -241,6 +241,78 @@ export function printResults({ results, lag, pm, behindBehavior, rangeSpecifier,
     printCatalogEdits({ packages: catalogMismatches, versionTarget: 'current', ...(workspaceFile !== undefined ? { workspaceFile } : {}) })
   }
 
+  console.log()
+}
+
+export interface MonorepoPackageResult {
+  pkg: WorkspacePackage
+  results: AuditResult[]
+}
+
+export function printMonorepoResults({
+  packages,
+  lag,
+  pm,
+  behindBehavior,
+  rangeSpecifier,
+  sameMajor,
+  minimumReleaseAge,
+  workspaceFile,
+}: Omit<PrintResultsOptions, 'results'> & { packages: MonorepoPackageResult[] }): void {
+  const allResults = packages.flatMap(p => p.results)
+  const violations = allResults.filter(r => r.status === 'pin')
+  const behind = allResults.filter(r => r.status === 'behind')
+  const hasActions = violations.length > 0 || (behindBehavior === 'report' && behind.length > 0)
+
+  console.log(`\nrecul  staying ${lag} version${lag === 1 ? '' : 's'} behind latest\n`)
+  printSettings({ lag, pm, behindBehavior, rangeSpecifier, sameMajor, ...(minimumReleaseAge !== undefined ? { minimumReleaseAge } : {}) })
+  console.log()
+
+  // Compute widths once across all packages so columns stay aligned
+  const w = computeWidths(allResults, behindBehavior)
+  const { header, divider } = renderHeader(w)
+
+  for (const { pkg, results } of packages) {
+    if (results.length === 0)
+      continue
+    const sorted = results.toSorted((a, b) => a.name.localeCompare(b.name))
+    console.log(`─── ${pkg.name} ${'─'.repeat(Math.max(0, divider.length - pkg.name.length - 5))}`)
+    console.log(header)
+    console.log(divider)
+    for (const row of renderRows(sorted, w, behindBehavior)) {
+      console.log(row)
+    }
+    console.log()
+  }
+
+  if (!hasActions) {
+    console.log('all audited packages are within the lag policy ✓\n')
+    return
+  }
+
+  const allViolations = violations.filter(r => !r.fromCatalog)
+  const catalogViolations = violations.filter(r => r.fromCatalog)
+
+  if (allViolations.length > 0) {
+    const cmds = installCmds({ pm, packages: allViolations, versionTarget: 'target' })
+    console.log('to pin back:')
+    for (const cmd of cmds) console.log(`  ${cmd}`)
+  }
+  if (catalogViolations.length > 0) {
+    printCatalogEdits({ packages: catalogViolations, versionTarget: 'target', ...(workspaceFile !== undefined ? { workspaceFile } : {}) })
+  }
+  if (behindBehavior === 'report' && behind.length > 0) {
+    const standardBehind = behind.filter(r => !r.fromCatalog)
+    const catalogBehind = behind.filter(r => r.fromCatalog)
+    if (standardBehind.length > 0) {
+      const cmds = installCmds({ pm, packages: standardBehind, versionTarget: 'target' })
+      console.log('\nsafe to upgrade (currently behind lag target):')
+      for (const cmd of cmds) console.log(`  ${cmd}`)
+    }
+    if (catalogBehind.length > 0) {
+      printCatalogEdits({ packages: catalogBehind, versionTarget: 'target', label: 'safe to upgrade (update catalog in', ...(workspaceFile !== undefined ? { workspaceFile } : {}) })
+    }
+  }
   console.log()
 }
 

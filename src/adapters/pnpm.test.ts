@@ -1,8 +1,8 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { loadPnpmCatalog, parsePnpmLock, resolveCatalogRefs, updatePnpmCatalog } from './pnpm.js'
+import { findWorkspaceRoot, loadPnpmCatalog, parsePnpmLock, resolveCatalogRefs, resolveWorkspacePackages, updatePnpmCatalog } from './pnpm.js'
 
 const PNPM_FIXTURE = `\
 lockfileVersion: '9.0'
@@ -187,5 +187,133 @@ describe('updatePnpmCatalog', () => {
     const updated = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
     expect(updated).toContain('"@types/node": ^22.0.0')
     expect(updated).toContain('vitest: 4.1.0')
+  })
+})
+
+// ─── parsePnpmLock — importer ─────────────────────────────────────────────────
+
+describe('parsePnpmLock — importer', () => {
+  const MONOREPO_LOCK = `\
+lockfileVersion: '9.0'
+
+importers:
+
+  .:
+    dependencies:
+      express:
+        specifier: ^5.0.0
+        version: 5.0.0
+
+  packages/app1:
+    dependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.0.0
+`
+
+  it('reads from root importer by default', () => {
+    const map = parsePnpmLock(MONOREPO_LOCK)
+    expect(map.express).toBe('5.0.0')
+    expect(map.react).toBeUndefined()
+  })
+
+  it('reads from a named importer when specified', () => {
+    const map = parsePnpmLock(MONOREPO_LOCK, 'packages/app1')
+    expect(map.react).toBe('18.0.0')
+    expect(map.express).toBeUndefined()
+  })
+
+  it('returns empty map when importer does not exist', () => {
+    const map = parsePnpmLock(MONOREPO_LOCK, 'packages/missing')
+    expect(Object.keys(map)).toHaveLength(0)
+  })
+})
+
+// ─── findWorkspaceRoot ────────────────────────────────────────────────────────
+
+describe('findWorkspaceRoot', () => {
+  let root: string
+
+  beforeEach(() => { root = mkdtempSync(join(tmpdir(), 'recul-test-')) })
+  afterEach(() => { rmSync(root, { recursive: true }) })
+
+  it('returns the directory containing pnpm-workspace.yaml with packages field', () => {
+    writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n')
+    expect(findWorkspaceRoot(root)).toBe(root)
+  })
+
+  it('walks up to find the workspace root from a subdirectory', () => {
+    writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n')
+    const sub = join(root, 'packages', 'app1')
+    mkdirSync(sub, { recursive: true })
+    expect(findWorkspaceRoot(sub)).toBe(root)
+  })
+
+  it('returns null when no pnpm-workspace.yaml is found', () => {
+    expect(findWorkspaceRoot(root)).toBeNull()
+  })
+
+  it('returns null when pnpm-workspace.yaml has no packages field', () => {
+    writeFileSync(join(root, 'pnpm-workspace.yaml'), 'catalogs:\n  default:\n    react: 18.0.0\n')
+    expect(findWorkspaceRoot(root)).toBeNull()
+  })
+})
+
+// ─── resolveWorkspacePackages ─────────────────────────────────────────────────
+
+describe('resolveWorkspacePackages', () => {
+  let root: string
+
+  beforeEach(() => { root = mkdtempSync(join(tmpdir(), 'recul-test-')) })
+  afterEach(() => { rmSync(root, { recursive: true }) })
+
+  it('expands wildcard patterns to workspace packages', () => {
+    writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n')
+    const pkgDir = join(root, 'packages', 'app1')
+    mkdirSync(pkgDir, { recursive: true })
+    writeFileSync(join(pkgDir, 'package.json'), JSON.stringify({ name: '@scope/app1' }))
+    const result = resolveWorkspacePackages(root)
+    expect(result).toHaveLength(1)
+    expect(result[0]!.name).toBe('@scope/app1')
+    expect(result[0]!.dir).toBe(pkgDir)
+  })
+
+  it('skips directories without a package.json', () => {
+    writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n')
+    mkdirSync(join(root, 'packages', 'no-pkg'), { recursive: true })
+    expect(resolveWorkspacePackages(root)).toHaveLength(0)
+  })
+
+  it('handles literal paths', () => {
+    const pkgDir = join(root, 'playground')
+    mkdirSync(pkgDir, { recursive: true })
+    writeFileSync(join(pkgDir, 'package.json'), JSON.stringify({ name: 'playground' }))
+    writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - playground\n')
+    const result = resolveWorkspacePackages(root)
+    expect(result).toHaveLength(1)
+    expect(result[0]!.name).toBe('playground')
+  })
+
+  it('includes . (root) as a workspace package when package.json exists', () => {
+    writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - .\n')
+    writeFileSync(join(root, 'package.json'), JSON.stringify({ name: '@scope/root' }))
+    const result = resolveWorkspacePackages(root)
+    expect(result).toHaveLength(1)
+    expect(result[0]!.name).toBe('@scope/root')
+    expect(result[0]!.dir).toBe(root)
+  })
+
+  it('skips exclusion patterns', () => {
+    writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - "!**/test/**"\n')
+    expect(resolveWorkspacePackages(root)).toHaveLength(0)
+  })
+
+  it('falls back to directory name when package.json has no name', () => {
+    writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n')
+    const pkgDir = join(root, 'packages', 'mylib')
+    mkdirSync(pkgDir, { recursive: true })
+    writeFileSync(join(pkgDir, 'package.json'), '{}')
+    const result = resolveWorkspacePackages(root)
+    expect(result[0]!.name).toBe('mylib')
   })
 })
