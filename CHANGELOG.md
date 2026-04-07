@@ -1,5 +1,16 @@
 # recul
 
+## 0.6.0
+
+### Minor Changes
+
+- 0cb1286: Write a markdown job summary to $GITHUB_STEP_SUMMARY when running in GitHub Actions. The summary includes the full audit table with status icons, violation count, and a pass/fail message.
+- 06c5c90: Add pnpm monorepo support. recul detects `pnpm-workspace.yaml` and audits each workspace package separately, grouping output by package with shared column widths. Installed versions are resolved per-importer from the lockfile. `--fix` applies catalog updates across all packages in one pass.
+
+### Patch Changes
+
+- 126f12e: Render the settings block as a table with dynamic column widths.
+
 ## 0.5.0
 
 ### Minor Changes
