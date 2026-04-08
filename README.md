@@ -1,12 +1,18 @@
-# recul
+# Recul
 
 Stay N versions behind the latest published release of your npm dependencies to avoid supply chain attacks.
 
-recul is not a replacement for typical auditing via `npm audit` or third party security tools; it is a complementary layer that reduces the attack surface without requiring active effort on every release cycle.
+Recul is not a replacement for typical auditing via `npm audit` or third party security tools; it is a complementary layer that reduces the attack surface without requiring active effort on every release cycle.
+
+## Why Recul?
+
+Supply chain attacks on npm packages are increasing. A malicious release can be in your build within minutes, often before any advisory exists. Recul gives your team a buffer: by staying a few versions behind latest, you get time for the maintainers to catch and fix problems before they reach you.
+
+Recul drops into CI in one step with no ongoing maintenance, and provides a CLI you can locally run. Recul gives your team a clear, auditable policy with a pass/fail signal on every pipeline run.
 
 ## How it works
 
-Given a lag of `N`, the target version is `versions[latest_index - N]`. Only stable releases are counted; pre-release versions (configurable, defaults to `-alpha`, `-beta`, `-rc`, `-next`, `-canary`, `-dev`) are excluded. If a package has fewer releases than the lag value, recul pins to the oldest available stable version.
+Given a lag of `N`, the target version is `versions[latest_index - N]`. Only stable releases are counted; pre-release versions (configurable, defaults to `-alpha`, `-beta`, `-rc`, `-next`, `-canary`, `-dev`) are excluded. If a package has fewer releases than the lag value, Recul pins to the oldest available stable version.
 
 Packages already older than the lag target are left alone by default. The invariant is "never be too new", not "be exactly N behind".
 
@@ -134,7 +140,7 @@ A `⚠ declared <specifier>` warning is appended when a package is declared with
 
 ## pnpm monorepo support
 
-In a pnpm workspace, recul detects `pnpm-workspace.yaml` and audits each package separately, grouping output by package:
+In a pnpm workspace, Recul detects `pnpm-workspace.yaml` and audits each package separately, grouping output by package:
 
 ```
 ─── packages/app ────────────────────────────────────────────────
@@ -152,13 +158,13 @@ Column widths are computed once across all packages so the table stays aligned. 
 
 ## pnpm catalog support
 
-When using pnpm workspaces with a `catalogs` block in `pnpm-workspace.yaml`, recul reads catalog entries to resolve `catalog:` and `catalog:<name>` references in `package.json`.
+When using pnpm workspaces with a `catalogs` block in `pnpm-workspace.yaml`, Recul reads catalog entries to resolve `catalog:` and `catalog:<name>` references in `package.json`.
 
 Violations in catalog-managed packages are reported with the catalog entry to update rather than an install command. Pass `--fix` to apply the updates directly to `pnpm-workspace.yaml`.
 
 ## Lockfile support
 
-When a lockfile is present, recul reads the installed version from it and uses that for comparison rather than the declared range. This gives accurate results for packages declared with `^` or `~`.
+When a lockfile is present, Recul reads the installed version from it and uses that for comparison rather than the declared range. This gives accurate results for packages declared with `^` or `~`.
 
 | Package manager | Lockfile |
 |----------------|----------|
@@ -167,7 +173,7 @@ When a lockfile is present, recul reads the installed version from it and uses t
 
 ## GitHub Actions
 
-Add recul to your CI pipeline to fail the workflow when dependencies are ahead of their lag target:
+Add Recul to your CI pipeline to fail the workflow when dependencies are ahead of their lag target:
 
 ```yaml
 - uses: actions/checkout@v4
@@ -187,7 +193,7 @@ Add recul to your CI pipeline to fail the workflow when dependencies are ahead o
 
 ### Job summary
 
-recul writes a markdown table to the GitHub Actions job summary automatically. In monorepo mode each workspace package gets its own section. No configuration required.
+Recul writes a markdown table to the GitHub Actions job summary automatically. In monorepo mode each workspace package gets its own section. No configuration required.
 
 ### Exit codes
 
