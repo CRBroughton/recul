@@ -1,5 +1,11 @@
 # recul
 
+## 0.6.1
+
+### Patch Changes
+
+- c03a0b7: Fix catalog: singular shorthand not being read. Projects using catalog: (top-level key) instead of catalogs.default: now correctly get fromCatalog set, catalog edit suggestions, and --fix support.
+
 ## 0.6.0
 
 ### Minor Changes
