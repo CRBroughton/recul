@@ -119,6 +119,31 @@ describe('loadPnpmCatalog', () => {
     writeFileSync(join(dir, 'pnpm-workspace.yaml'), 'packages:\n  - playground\n')
     expect(loadPnpmCatalog(dir)).toBeNull()
   })
+
+  it('reads catalog: singular shorthand as default catalog', () => {
+    writeFileSync(join(dir, 'pnpm-workspace.yaml'), [
+      'catalog:',
+      '  typescript: 5.8.3',
+      '  express: ^5.0.0',
+    ].join('\n'))
+    const catalogs = loadPnpmCatalog(dir)
+    expect(catalogs).not.toBeNull()
+    expect(catalogs!.default?.typescript).toBe('5.8.3')
+    expect(catalogs!.default?.express).toBe('^5.0.0')
+  })
+
+  it('merges catalog: singular and catalogs: plural', () => {
+    writeFileSync(join(dir, 'pnpm-workspace.yaml'), [
+      'catalog:',
+      '  typescript: 5.8.3',
+      'catalogs:',
+      '  testing:',
+      '    vitest: 4.1.0',
+    ].join('\n'))
+    const catalogs = loadPnpmCatalog(dir)
+    expect(catalogs!.default?.typescript).toBe('5.8.3')
+    expect(catalogs!.testing?.vitest).toBe('4.1.0')
+  })
 })
 
 describe('resolveCatalogRefs', () => {

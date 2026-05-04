@@ -16,6 +16,7 @@ interface PnpmLock {
 
 interface PnpmWorkspace {
   packages?: string[]
+  catalog?: Record<string, string>
   catalogs?: Record<string, Record<string, string>>
 }
 
@@ -66,11 +67,15 @@ export function loadPnpmCatalog(dir: string): Record<string, Record<string, stri
     return null
   try {
     const raw = parseYAML<PnpmWorkspace>(readFileSync(path, 'utf8'))
-    if (!raw?.catalogs)
+    if (!raw?.catalogs && !raw?.catalog)
       return null
     const result: Record<string, Record<string, string>> = {}
-    for (const [catalogName, section] of Object.entries(raw.catalogs)) {
-      result[catalogName] = { ...section }
+    if (raw.catalog)
+      result.default = { ...raw.catalog }
+    if (raw.catalogs) {
+      for (const [catalogName, section] of Object.entries(raw.catalogs)) {
+        result[catalogName] = { ...(result[catalogName] ?? {}), ...section }
+      }
     }
     return Object.keys(result).length > 0 ? result : null
   }
