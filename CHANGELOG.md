@@ -1,5 +1,11 @@
 # recul
 
+## 0.6.2
+
+### Patch Changes
+
+- Update defu dependency to 6.1.5 to resolve CVE
+
 ## 0.6.1
 
 ### Patch Changes
