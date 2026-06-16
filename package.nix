@@ -15,6 +15,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     nodejs
     pnpm
     pnpmConfigHook
+    makeWrapper
   ];
 
   pnpmDeps = pkgs.fetchPnpmDeps {
@@ -28,11 +29,13 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   '';
 
   installPhase = ''
-    mkdir -p $out/bin
-    cp -r dist $out/
-    echo '#!/usr/bin/env node' > $out/bin/recul
-    echo "require('$out/dist/bin/recul.js')" >> $out/bin/recul
-    chmod +x $out/bin/recul
+    runHook preInstall
+    mkdir -p $out/lib/recul $out/bin
+    cp -r dist node_modules package.json $out/lib/recul/
+    find $out -xtype l -delete
+    makeWrapper ${pkgs.nodejs}/bin/node $out/bin/recul \
+      --add-flags "$out/lib/recul/dist/bin/recul.js"
+    runHook postInstall
   '';
 
   meta = {
