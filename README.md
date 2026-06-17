@@ -22,10 +22,47 @@ Packages already older than the lag target are left alone by default. The invari
 
 ## Installation
 
+Recul can be installed via both `npm` and `pnpm`
+
 ```sh
 npm i -D @crbroughton/recul
 # or
 pnpm add -D @crbroughton/recul
+```
+
+Recul can also be installed and used via Nix:
+
+### Nix
+
+#### Flake Installation
+
+Add to your flake inputs:
+
+```nix
+{
+  inputs = {
+    recul = {
+      url = "github:CRBroughton/recul";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+}
+```
+Then add `inputs.recul.packages.${pkgs.system}.default` to your environment packages.
+
+#### Nix Shell
+
+To run within a Nix shell (without installing):
+
+```sh
+nix shell github:CRBroughton/recul
+```
+#### Nix Run
+
+To run directly via Nix (without creating a shell):
+
+```sh
+nix run github:CRBroughton/recul
 ```
 
 ## Quick start
